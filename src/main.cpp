@@ -9,7 +9,7 @@
 #include "stb_image.h"
 #define NUMB 2
 #define MAXL 80
-char images[NUMB][MAXL]={"../sun.jpg","../space.jpeg"};
+char images[NUMB][MAXL]={"../sun.jpg","../metalPaint.jpg"};
 static GLuint texName[NUMB];
 /* end use of image lib*/
 
@@ -25,21 +25,21 @@ GLfloat radius[PLANETS] = {0.3, 0.50,  0.55, 0.4, 1.05, 1.03, 0.85, 0.825};
 GLfloat angle[PLANETS] = {0.0, 60.0,  120.0, 340.0, 270.0, 30.0, 180.0, 90.0};
 GLfloat speed[PLANETS] = {1.0, 1.5,  3.0, 2.5, 1.2, 2.3, 0.7, 1.7};
 
-// GLdouble x_0=20.0, y_0=20.0, z_0=20.0; 
-// GLdouble x_0=1.0, y_0=70.0, z_0=1.0; //cf. top view!
-GLdouble x_0=0.0, y_0=10.0, z_0=20.0; //cf. side view!
+GLdouble x_0=20.0, y_0=20.0, z_0=20.0; 
+// GLdouble x_0=0.5, y_0=70.0, z_0=0.5; //cf. top view!
+// GLdouble x_0=0.0, y_0=10.0, z_0=20.0; //cf. side view!
 
 // GLdouble x_0=0.0, y_0=20.0, z_0=20.0; 
 GLdouble x_ref=0.0, y_ref=0.0, z_ref=0.0;
 GLdouble near = 1.0, far = 100.0;
 char mode = 'o';
-bool visualAids = true;
+bool visualAids = true, texture = true;
 GLint winWidth = 1000, winHeight = 1000, propellers = 4; 
-GLfloat sunLight[] = {0.0 ,0.0, 0.0, 1.0};
-GLfloat leftLight[] = {-6.0 ,3.0, 6.0, 0.0};
+GLfloat centerLight[] = {0.0 ,6.0, 0.0, 1.0};
+GLfloat leftLight[] = {-6.0 ,3.0, 6.0, 1.0};
 GLfloat rightLight[] = {6.0 , 3.0, -6.0, 1.0};
 
-// GLfloat sunLight[] = {0.1 ,0.0, 0.0, 0.0};
+// GLfloat centerLight[] = {0.1 ,0.0, 0.0, 0.0};
 
 
 // some colours
@@ -48,17 +48,22 @@ GLfloat red[4] = {0.9,0.1,0.0, 1.0};
 GLfloat green[4] = {0.0,1.0,0.0, 1.0};
 GLfloat purple[4] = {0.9,0.0,0.9, 1.0};
 GLfloat black[4] = {0.0,0.0,0.0};
-GLfloat shine = 60.0;
+
+
+// colour and light definition
+GLfloat ambient[] = {0.2, 0.2, 0.2, 1.0};
+GLfloat shine[] = {60.0};
+GLfloat chrome_ambient[] = {0.46, 0.58, 0.35, 1.0};
+GLfloat chrome_diffuse[] = {0.23, 0.29, 0.17, 1.0};
+GLfloat chrome_specular[] = {0.69, 0.87, 0.52, 1.0};
+GLfloat bronze_ambient[] = {0.21, 0.13, 0.10, 1.0};
+GLfloat bronze_diffuse[] = {0.39, 0.27, 0.17, 1.0};
+GLfloat bronze_specular[] = {0.71, 0.43, 0.18, 1.0};
 
 GLfloat redTrans[] = {0.9,0.1,0.0,0.5};
 GLfloat greenTrans[] = {0.0,1.0,0.0,0.5};
 GLfloat yellowTrans[] = {1.0, 1.0, 0.0, 0.5};
 
-// GLfloat yellow[3] = {1.0, 1.0, 0.0};
-GLfloat myRed[3] = {0.9,0.1,0.0};
-// GLfloat green[3] = {0.0,1.0,0.0};
-// GLfloat purple[3] = {0.9,0.0,0.9};
-// GLfloat black[3] = {0.0,0.0,0.0};
 GLfloat grey[3] = {0.412, 0.412, 0.412};
 
 // GLfloat controlPoints[6][4][3] = {
@@ -90,6 +95,30 @@ GLfloat controlPoints[6][4][3] = {
     {{-1.0, 16.0, 0.0}, {-0.5, 16.0, 1.0}, {0.5, 16.0, 1.0}, {0.5, 16.0, 0.0}},
 };
 
+void lightsOn(void)
+{
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+    // glLightfv(GL_LIGHT0,GL_DIFFUSE,ambient);
+    // glLightfv(GL_LIGHT0,GL_SPECULAR,ambient);
+    glEnable(GL_LIGHT0);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, ambient);
+    glEnable(GL_LIGHT1);
+
+    glLightfv(GL_LIGHT2, GL_AMBIENT, ambient);
+    glEnable(GL_LIGHT2);
+
+    // //general light mode
+    // glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
+
+    //enable 
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glEnable( GL_BLEND );
+
+
+}
 
 
 void init(void)
@@ -124,22 +153,7 @@ void init(void)
       stbi_image_free(data);
     }
 
-    // Als je met glColor3 wilt blijven werken heb
-    // je glEnable(GL_COLOR_MATERIAL) en glColorMaterial(GL_FRONT_AND_BACK, 
-    // GL_AMBIENT_AND_DIFFUSE)
-
-    //general light mode
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
-
-    //light source 1
-    glLightfv(GL_LIGHT0,GL_AMBIENT,black);
-    glLightfv(GL_LIGHT0,GL_SPECULAR,yellow);
-    glLightfv(GL_LIGHT0,GL_DIFFUSE,yellow);
-    glEnable(GL_LIGHT0);
-
-    //enable 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // glEnable( GL_BLEND );
+    lightsOn();
     
 }
 
@@ -155,14 +169,16 @@ void drawAxes(void)
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(0.0, 0.0,4.0);
     glEnd();
+
 }
 
 // visual aid: showing light sources
 void lightsPos(void)
 {
     glColor3fv(grey);
-    // glColor3f(0.412, 0.412, 0.412);
     glBegin(GL_LINES);
+    glVertex3fv(centerLight);
+    glVertex3f(0.0,0.0,0.0);
     glVertex3fv(leftLight);
     glVertex3f(0.0,0.0,0.0);
     glVertex3fv(rightLight);
@@ -212,26 +228,56 @@ void drawPlanet (GLint planet, GLfloat orbitSpeed)
     setOrbit(orbitSpeed,xORbit[planet], zORbit[planet]); 
     glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,yellow);
     glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,yellow);
-    glMaterialf(GL_FRONT,GL_SHININESS,shine);
+    // glMaterialf(GL_FRONT,GL_SHININESS,shine);
     glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,yellow);
     glutSolidSphere(radius[planet],20,20);
     glPopMatrix();
 
 }
 
-void drawBezierSurface() {
-    int i, j;
-    GLfloat u, v;
-    // glPointSize(5.0);
+// draw a Bezier surface with possible texture
+void drawBezierSurface(void) {
 
+    //define normal to enable shine?
+    glNormal3f(0,0,1);
+
+    if (texture)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture (GL_TEXTURE_2D,texName[1]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    }
+    
     glMap2f(GL_MAP2_VERTEX_3, 0, 1, 3, 4, 0, 1, 12, 6, &controlPoints[0][0][0]);
     glEnable(GL_MAP2_VERTEX_3);
 
-    glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
+    if (texture)
+    {
+        glMap2f(GL_MAP2_TEXTURE_COORD_2, 0, 1, 3, 4, 0, 1, 12, 6, &controlPoints[0][0][0]);
+        glEnable(GL_MAP2_TEXTURE_COORD_2);
+    }
 
+    glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
     glEvalMesh2(GL_FILL, 0, 20, 0, 20);
 
+    if (texture)
+    {
+        glDisable(GL_MAP2_TEXTURE_COORD_2);
+
+    }
+    
     glDisable(GL_MAP2_VERTEX_3);
+
+    if (texture)
+    {
+        glDisable(GL_TEXTURE_2D);
+    }
+    
 }
 
 // show conrol points
@@ -263,10 +309,33 @@ void showCtrlPoints()
     // glDisable(GL_LINE_STIPPLE);
 }
 
+void drawPropeller(void)
+{
+    
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, chrome_ambient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, chrome_diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, chrome_specular);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+    
+    glPushMatrix();
+    glutSolidSphere(1.0,20,20);
+    glPopMatrix();
+    
+    glPushMatrix();
+    // glTranslatef(0.0, 0.0, 0.5);
+    glRotatef(90.0, 1.0, 0.0, 0.0);
+    glRotatef(180.0, 0.0, 1.0, 0.0);
+    drawBezierSurface();
+    // showCtrlPoints();
+    glPopMatrix();
 
-
-
-
+    glPushMatrix();
+    // glTranslatef(0.0, 0.0, -0.5);
+    glRotatef(-90.0, 1.0, 0.0, 0.0);
+    drawBezierSurface();
+    // showCtrlPoints();
+    glPopMatrix();
+}
 
 // generate a single drone
 void drawDrone(void)
@@ -274,31 +343,11 @@ void drawDrone(void)
     if (visualAids)
     {
         drawAxes();
-        // lightsPos();
+        lightsPos();
     }
 
-    
-    glPushMatrix();
-    // glTranslatef(-5.0, 0.0, 0.0);
-    glRotatef(90.0, 0.0, 0.0, 1.0);
-    // glRotatef(-20.0, 1.0, 1.0, 0.0);
-    drawBezierSurface();
-    showCtrlPoints();
-    glPopMatrix();
+    drawPropeller();
 
-    glPushMatrix();
-    glTranslatef(0.0, 0.0, 1.0);
-    glRotatef(-30.0, 1.0, 0.0, 0.0);
-    glRotatef(-90.0, 0.0, 0.0, 1.0);
-    // glRotatef(180.0, 0.0, 1.0, 0.0);
-    // glRotatef(-20.0, 1.0, 1.0, 0.0);
-    drawBezierSurface();
-    showCtrlPoints();
-    glPopMatrix();
-    
-    
-
-    
     // use material info
 
    
@@ -320,10 +369,9 @@ void drawCanvas(void)
     drawDrone();
     
     // drawPlanet(0, angle[0]);
-
-    // glEnable(GL_TEXTURE_2D);
     
-    // // the sun in the center
+    // the sun in the center
+    // glEnable(GL_TEXTURE_2D);
     // glBindTexture (GL_TEXTURE_2D,texName[0]);
     // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -343,6 +391,12 @@ void drawCanvas(void)
 
     // glDepthMask(GL_TRUE);
     // glDisable(GL_BLEND);
+}
+
+// rotate the propellers
+void rotate(int delta)
+{
+
 }
 
 void move(int delta)
@@ -389,6 +443,7 @@ void keys(unsigned char key, int x, int y)
         case 'p' : mode='p'; printf("symmetric perspective projection\n"); break;
         case 'f' : mode='f'; printf("general perspective projection\n"); break;
         case 'h' : visualAids=!visualAids; printf("visual assistance\n"); break;
+        case 't' : texture=!texture; printf("texture please\n"); break;
 
         //lighting
         // case 'o' : glEnable(GL_LIGHT0); printf("light 1 on  diffuse\n"); break;
@@ -441,9 +496,13 @@ void displayFcn(void)
     // set camera
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glLightfv(GL_LIGHT0,GL_POSITION,sunLight);
+    // glLightfv(GL_LIGHT0,GL_POSITION,centerLight);
+    // glLightfv(GL_LIGHT1,GL_POSITION,leftLight);
+    // glLightfv(GL_LIGHT2,GL_POSITION,rightLight);
     gluLookAt(x_0,y_0,z_0,    x_ref,y_ref,z_ref,    0.0, 1.0, 0.0);
-    // glLightfv(GL_LIGHT0,GL_POSITION,sunLight);
+    glLightfv(GL_LIGHT0,GL_POSITION,centerLight);
+    glLightfv(GL_LIGHT1,GL_POSITION,leftLight);
+    glLightfv(GL_LIGHT2,GL_POSITION,rightLight);
 
     glEnable(GL_NORMALIZE);
     glEnable(GL_LIGHTING);
@@ -455,8 +514,6 @@ void displayFcn(void)
     //repeat timerfunct and swap buffers in display?
     glutSwapBuffers();
 
-
-        
     glFlush();
     // glDisable(GL_LIGHTING);//show initial color
     
