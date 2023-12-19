@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
+// #include <string.h>
+#include <stdlib.h>
 /* use of image lib*/
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -13,6 +15,9 @@ static GLuint texName[NUMB];
 
 #define ESC 27
 #define PLANETS 8
+#define LCONTROL 6
+#define WCONTROL 4
+
 
 GLfloat xORbit[PLANETS] = {4.06, 5.68, 7.01, 8.42, 10.66, 12.26, 13.96, 15.41};
 GLfloat zORbit[PLANETS] = {3.06, 5.00, 7.71, 9.42, 10.00, 11.26, 14.46, 16.41};
@@ -20,17 +25,21 @@ GLfloat radius[PLANETS] = {0.3, 0.50,  0.55, 0.4, 1.05, 1.03, 0.85, 0.825};
 GLfloat angle[PLANETS] = {0.0, 60.0,  120.0, 340.0, 270.0, 30.0, 180.0, 90.0};
 GLfloat speed[PLANETS] = {1.0, 1.5,  3.0, 2.5, 1.2, 2.3, 0.7, 1.7};
 
-GLdouble x_0=20.0, y_0=20.0, z_0=20.0;
-// GLdouble x_0=1.0, y_0=1.0, z_0=1.0;
+// GLdouble x_0=20.0, y_0=20.0, z_0=20.0; 
+// GLdouble x_0=1.0, y_0=70.0, z_0=1.0; //cf. top view!
+GLdouble x_0=0.0, y_0=10.0, z_0=20.0; //cf. side view!
 
-// GLdouble x_0=0.0, y_0=20.0, z_0=20.0; //cf. background!
+// GLdouble x_0=0.0, y_0=20.0, z_0=20.0; 
 GLdouble x_ref=0.0, y_ref=0.0, z_ref=0.0;
 GLdouble near = 1.0, far = 100.0;
 char mode = 'o';
-GLint winWidth = 1000, winHeight = 1000; 
+bool visualAids = true;
+GLint winWidth = 1000, winHeight = 1000, propellers = 4; 
 GLfloat sunLight[] = {0.0 ,0.0, 0.0, 1.0};
+GLfloat leftLight[] = {-6.0 ,3.0, 6.0, 0.0};
+GLfloat rightLight[] = {6.0 , 3.0, -6.0, 1.0};
+
 // GLfloat sunLight[] = {0.1 ,0.0, 0.0, 0.0};
-// GLfloat angle = 0.0;
 
 
 // some colours
@@ -44,6 +53,42 @@ GLfloat shine = 60.0;
 GLfloat redTrans[] = {0.9,0.1,0.0,0.5};
 GLfloat greenTrans[] = {0.0,1.0,0.0,0.5};
 GLfloat yellowTrans[] = {1.0, 1.0, 0.0, 0.5};
+
+// GLfloat yellow[3] = {1.0, 1.0, 0.0};
+GLfloat myRed[3] = {0.9,0.1,0.0};
+// GLfloat green[3] = {0.0,1.0,0.0};
+// GLfloat purple[3] = {0.9,0.0,0.9};
+// GLfloat black[3] = {0.0,0.0,0.0};
+GLfloat grey[3] = {0.412, 0.412, 0.412};
+
+// GLfloat controlPoints[6][4][3] = {
+//     {{-1.0, 0.0, 0.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {1.0, 0.0, 0.0}},
+//     {{-1.0, 1.0, 0.0}, {-0.5, 1.0, 1.0}, {0.5, 1.0, 1.0}, {1.0, 1.0, 0.0}},
+//     {{-1.0, 2.0, 0.0}, {-0.5, 2.0, 1.0}, {0.5, 2.0, 1.0}, {1.0, 2.0, 0.0}},
+//     {{-1.0, 3.0, 0.0}, {-0.5, 3.0, 1.0}, {0.5, 3.0, 1.0}, {1.0, 3.0, 0.0}},
+//     {{-1.0, 4.0, 0.0}, {-0.5, 4.0, 1.0}, {0.5, 4.0, 1.0}, {1.0, 4.0, 0.0}},
+//     {{-1.0, 5.0, 0.0}, {-0.5, 5.0, 1.0}, {0.5, 5.0, 1.0}, {1.0, 5.0, 0.0}},
+// };
+
+
+// propeller control points
+// GLfloat controlPoints[6][4][3] = {
+//     {{-1.0, 0.0, 0.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {0.0, 0.0, 0.0}},
+//     {{-2.0, 1.0, 0.0}, {-0.5, 1.0, 1.0}, {0.5, 1.0, 1.0}, {1.0, 1.0, 0.0}},
+//     {{-2.0, 2.0, 0.0}, {-0.5, 2.0, 1.0}, {0.5, 2.0, 1.0}, {1.0, 2.0, 0.0}},
+//     {{-2.0, 3.0, 0.0}, {-0.5, 3.0, 1.0}, {0.5, 3.0, 1.0}, {1.0, 3.0, 0.0}},
+//     {{-2.0, 4.0, 0.0}, {-0.5, 4.0, 1.0}, {0.5, 4.0, 1.0}, {1.0, 4.0, 0.0}},
+//     {{-1.5, 8.0, 0.0}, {-0.5, 8.0, 1.0}, {0.5, 8.0, 1.0}, {0.5, 8.0, 0.0}},
+// };
+
+GLfloat controlPoints[6][4][3] = {
+    {{-0.5, 0.0, 0.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {0.0, 0.0, 0.0}},
+    {{-1.5, 2.0, 0.0}, {-0.5, 2.0, 1.0}, {0.5, 2.0, 1.0}, {1.0, 2.0, 0.0}},
+    {{-1.5, 4.0, 0.0}, {-0.5, 4.0, 1.0}, {0.5, 4.0, 1.0}, {1.0, 4.0, 0.0}},
+    {{-1.5, 6.0, 0.0}, {-0.5, 6.0, 1.0}, {0.5, 6.0, 1.0}, {1.0, 6.0, 0.0}},
+    {{-1.5, 8.0, 0.0}, {-0.5, 8.0, 1.0}, {0.5, 8.0, 1.0}, {1.0, 8.0, 0.0}},
+    {{-1.0, 16.0, 0.0}, {-0.5, 16.0, 1.0}, {0.5, 16.0, 1.0}, {0.5, 16.0, 0.0}},
+};
 
 
 
@@ -98,36 +143,31 @@ void init(void)
     
 }
 
-// draw x-axis on window
-void xAxesDef(void)
+// visual aid: xyz-axis on window
+void drawAxes(void)
 {    
-    glColor3f(0.412, 0.412, 0.412);
+    glColor3fv(grey);
     glBegin(GL_LINES);
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(4.0, 0.0, 0.0);
-    glEnd();
-}
-
-// draw y-axis on window
-void yAxesDef(void)
-{
-    glColor3f(0.412, 0.412, 0.412);
-    glBegin(GL_LINES);
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(0.0, 4.0, 0.0);
-    glEnd();
-    
-}
-
-// draw y-axis on window
-void zAxesDef(void)
-{
-    glColor3f(0.412, 0.412, 0.412);
-    glBegin(GL_LINES);
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(0.0, 0.0,4.0);
     glEnd();
-    
+}
+
+// visual aid: showing light sources
+void lightsPos(void)
+{
+    glColor3fv(grey);
+    // glColor3f(0.412, 0.412, 0.412);
+    glBegin(GL_LINES);
+    glVertex3fv(leftLight);
+    glVertex3f(0.0,0.0,0.0);
+    glVertex3fv(rightLight);
+    glVertex3f(0.0,0.0,0.0);
+    glEnd();
 }
 
 void imageBackground(void)
@@ -156,7 +196,7 @@ void imageBackground(void)
 
 }
 
-// define the orbit of the planet (an ellipse with origin 0.0)
+// define the orbit of the drone (an ellipse with origin 0.0)
 void setOrbit (GLfloat orbitSpeed, GLfloat orbitRadiusX,  GLfloat orbitRadiusZ)
 {
     GLfloat planetX =  0.0 + (orbitRadiusX * cos(orbitSpeed / 180.0 * M_PI));
@@ -179,34 +219,126 @@ void drawPlanet (GLint planet, GLfloat orbitSpeed)
 
 }
 
+void drawBezierSurface() {
+    int i, j;
+    GLfloat u, v;
+    // glPointSize(5.0);
+
+    glMap2f(GL_MAP2_VERTEX_3, 0, 1, 3, 4, 0, 1, 12, 6, &controlPoints[0][0][0]);
+    glEnable(GL_MAP2_VERTEX_3);
+
+    glMapGrid2f(20, 0.0, 1.0, 20, 0.0, 1.0);
+
+    glEvalMesh2(GL_FILL, 0, 20, 0, 20);
+
+    glDisable(GL_MAP2_VERTEX_3);
+}
+
+// show conrol points
+void showCtrlPoints()
+{
+    int i;
+    int j;
+    glLineWidth(1.2);
+    glPointSize(5.0);
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_POINTS);
+    for (i = 0; i < LCONTROL; i++)
+    {
+         for (j = 0; j < WCONTROL; j++)
+         {
+            glVertex3fv(&controlPoints[i][j][0]);
+            // printf("%f \n", controlPoints[i][j][0]);
+
+         }
+
+    }
+    glEnd();
+    // glEnable(GL_LINE_STIPPLE);
+    // glLineStipple(2, 0x00ff);
+    // glBegin(GL_LINE_STRIP);
+    // for (i = 0; i < AANTAL; i++)
+    //     glVertex3fv(&ctrlpoints[i][0]);
+    // glEnd();
+    // glDisable(GL_LINE_STIPPLE);
+}
+
+
+
+
+
+
+// generate a single drone
+void drawDrone(void)
+{
+    if (visualAids)
+    {
+        drawAxes();
+        // lightsPos();
+    }
+
+    
+    glPushMatrix();
+    // glTranslatef(-5.0, 0.0, 0.0);
+    glRotatef(90.0, 0.0, 0.0, 1.0);
+    // glRotatef(-20.0, 1.0, 1.0, 0.0);
+    drawBezierSurface();
+    showCtrlPoints();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.0, 0.0, 1.0);
+    glRotatef(-30.0, 1.0, 0.0, 0.0);
+    glRotatef(-90.0, 0.0, 0.0, 1.0);
+    // glRotatef(180.0, 0.0, 1.0, 0.0);
+    // glRotatef(-20.0, 1.0, 1.0, 0.0);
+    drawBezierSurface();
+    showCtrlPoints();
+    glPopMatrix();
+    
+    
+
+    
+    // use material info
+
+   
+
+
+
+    
+
+    
+
+    
+
+}
+
 
 
 void drawCanvas(void)
 {
-    xAxesDef();
-    yAxesDef();
-    zAxesDef();
+    drawDrone();
     
-    drawPlanet(0, angle[0]);
+    // drawPlanet(0, angle[0]);
 
-    glEnable(GL_TEXTURE_2D);
+    // glEnable(GL_TEXTURE_2D);
     
-    // the sun in the center
-    glBindTexture (GL_TEXTURE_2D,texName[0]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+    // // the sun in the center
+    // glBindTexture (GL_TEXTURE_2D,texName[0]);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
     
-    glPushMatrix();
-    GLUquadricObj * imageSphere ;
-    imageSphere = gluNewQuadric();
-    gluQuadricTexture(imageSphere, GL_TRUE );
-    gluQuadricDrawStyle(imageSphere, GLU_FILL );
-    gluSphere(imageSphere,1,50,50);
-    gluDeleteQuadric(imageSphere);
-    glPopMatrix();
+    // glPushMatrix();
+    // GLUquadricObj * imageSphere ;
+    // imageSphere = gluNewQuadric();
+    // gluQuadricTexture(imageSphere, GL_TRUE );
+    // gluQuadricDrawStyle(imageSphere, GLU_FILL );
+    // gluSphere(imageSphere,1,50,50);
+    // gluDeleteQuadric(imageSphere);
+    // glPopMatrix();
 
-    glDisable(GL_TEXTURE_2D);
+    // glDisable(GL_TEXTURE_2D);
     
 
     // glDepthMask(GL_TRUE);
@@ -230,7 +362,7 @@ void move(int delta)
     // }
     
     glutTimerFunc(500, move, 1);     
-    glutSwapBuffers();
+    // glutSwapBuffers();
     glutPostRedisplay();
 }
 
@@ -239,23 +371,24 @@ void keys(unsigned char key, int x, int y)
     switch (key)
     {
         //move camera
-        case 'x': x_0 = x_0+0.1; break;
-        case 'X': x_0 = x_0-0.1; break;
-        case 'y': y_0 = y_0+0.1; break;
-        case 'Y': y_0 = y_0-0.1; break;
-        case 'z': z_0 = z_0+0.1; break;
-        case 'Z': z_0 = z_0-0.1; break;
-        case 'a': x_ref = x_ref+0.1; break;
-        case 'A': x_ref = x_ref-0.1; break;
-        case 'b': y_ref = y_ref+0.1; break;
-        case 'B': y_ref = y_ref-0.1; break;
-        case 'c': z_ref = z_ref+0.1; break;
-        case 'C': z_ref = z_ref-0.1; break;
+        case 'x': x_0++; break;
+        case 'X': x_0--; break;
+        case 'y': y_0++; break;
+        case 'Y': y_0--; break;
+        case 'z': z_0++; break;
+        case 'Z': z_0--; break;
+        case 'a': x_ref++; break;
+        case 'A': x_ref--; break;
+        case 'b': y_ref++; break;
+        case 'B': y_ref--; break;
+        case 'c': z_ref++; break;
+        case 'C': z_ref--; break;
         case 'r': x_0=20.0, y_0=20.0, z_0=20.0; x_ref = 0.0; y_ref = 0.0; z_ref = 0.0; break;
         // view
         case 'o' : mode='o'; printf("orthographic projection\n"); break;
         case 'p' : mode='p'; printf("symmetric perspective projection\n"); break;
         case 'f' : mode='f'; printf("general perspective projection\n"); break;
+        case 'h' : visualAids=!visualAids; printf("visual assistance\n"); break;
 
         //lighting
         // case 'o' : glEnable(GL_LIGHT0); printf("light 1 on  diffuse\n"); break;
@@ -318,6 +451,11 @@ void displayFcn(void)
     
     drawCanvas();
     // imageBackground();
+
+    //repeat timerfunct and swap buffers in display?
+    glutSwapBuffers();
+
+
         
     glFlush();
     // glDisable(GL_LIGHTING);//show initial color
@@ -328,7 +466,8 @@ int main(int argc, char * argv[]) {
     if ( argc > 1 )
     {
         // use first param
-        // welk = strtol(argv[1], (char **)NULL, 10);
+        char *arg = argv[1];
+        propellers = atoi(arg);
         if ( argc > 2 )
                 // use second param
                 mode = argv[2][0];
