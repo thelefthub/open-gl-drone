@@ -313,7 +313,7 @@ void showCtrlPoints()
     // glDisable(GL_LINE_STIPPLE);
 }
 
-void drawPropeller(void)
+void drawPropeller(char pos)
 {
 
     glPushMatrix();
@@ -347,6 +347,18 @@ void drawPropeller(void)
     drawBezierSurface();
     // showCtrlPoints();
     glPopMatrix();
+
+    if (pos == 'l')
+    {
+        glPushMatrix();
+        glTranslatef(-2, 2, 0.0);
+        
+    }
+    else
+    {
+
+    }
+    
 }
 
 // one bar using 2 propellers
@@ -357,6 +369,23 @@ void drawPropBar(void)
     glScalef(25.0, 0.5, 1.0);
     glutSolidCube(2.0);
     glPopMatrix();
+
+    if (chromeFinish)
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, chromeAmbient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, chromeDiffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, chromeSpecular);
+    }
+    else
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, bronzeAmbient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, bronzeDiffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, bronzeSpecular);
+        
+    }
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+    drawPropeller('l');
+    drawPropeller('r');
 }
 
 // generate a single drone
@@ -384,22 +413,10 @@ void drawDrone(void)
     }
     drawPropBar();
     
-    if (chromeFinish)
-    {
-        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, chromeAmbient);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, chromeDiffuse);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, chromeSpecular);
-    }
-    else
-    {
-        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, bronzeAmbient);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, bronzeDiffuse);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, bronzeSpecular);
-        
-    }
+    
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
     
-    drawPropeller();
+    
 
     // use material info
 
