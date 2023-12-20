@@ -33,14 +33,9 @@ GLdouble x_0=20.0, y_0=20.0, z_0=20.0;
 GLdouble x_ref=0.0, y_ref=0.0, z_ref=0.0;
 GLdouble near = 1.0, far = 100.0;
 char mode = 'o';
-bool visualAids = true, texture = true;
+bool visualAids = true, texture = true, chromeFinish = true, greyFinish=true;
+GLfloat propRotation = 0.0;
 GLint winWidth = 1000, winHeight = 1000, propellers = 4; 
-GLfloat centerLight[] = {0.0 ,6.0, 0.0, 1.0};
-GLfloat leftLight[] = {-6.0 ,3.0, 6.0, 1.0};
-GLfloat rightLight[] = {6.0 , 3.0, -6.0, 1.0};
-
-// GLfloat centerLight[] = {0.1 ,0.0, 0.0, 0.0};
-
 
 // some colours
 GLfloat yellow[4] = {1.0, 1.0, 0.0, 1.0};
@@ -49,16 +44,25 @@ GLfloat green[4] = {0.0,1.0,0.0, 1.0};
 GLfloat purple[4] = {0.9,0.0,0.9, 1.0};
 GLfloat black[4] = {0.0,0.0,0.0};
 
-
 // colour and light definition
+GLfloat centerLight[] = {0.0 ,6.0, 0.0, 1.0};
+GLfloat leftLight[] = {-6.0 ,3.0, 6.0, 1.0};
+GLfloat rightLight[] = {6.0 , 3.0, -6.0, 1.0};
 GLfloat ambient[] = {0.2, 0.2, 0.2, 1.0};
 GLfloat shine[] = {60.0};
-GLfloat chrome_ambient[] = {0.46, 0.58, 0.35, 1.0};
-GLfloat chrome_diffuse[] = {0.23, 0.29, 0.17, 1.0};
-GLfloat chrome_specular[] = {0.69, 0.87, 0.52, 1.0};
-GLfloat bronze_ambient[] = {0.21, 0.13, 0.10, 1.0};
-GLfloat bronze_diffuse[] = {0.39, 0.27, 0.17, 1.0};
-GLfloat bronze_specular[] = {0.71, 0.43, 0.18, 1.0};
+GLfloat chromeAmbient[] = {0.46, 0.58, 0.35, 1.0};
+GLfloat chromeDiffuse[] = {0.23, 0.29, 0.17, 1.0};
+GLfloat chromeSpecular[] = {0.69, 0.87, 0.52, 1.0};
+GLfloat bronzeAmbient[] = {0.21, 0.13, 0.10, 1.0};
+GLfloat bronzeDiffuse[] = {0.39, 0.27, 0.17, 1.0};
+GLfloat bronzeSpecular[] = {0.71, 0.43, 0.18, 1.0};
+GLfloat greyAmbient[] = {0.22, 0.22, 0.22, 1.0};
+GLfloat greyDiffuse[] = {0.33, 0.33, 0.33, 1.0};
+GLfloat greySpecular[] = {0.11, 0.11, 0.11, 1.0};
+GLfloat whiteAmbient[] = {0.22, 0.22, 0.22, 1.0};
+GLfloat whiteDiffuse[] = {0.33, 0.33, 0.33, 1.0};
+GLfloat whiteSpecular[] = {0.11, 0.11, 0.11, 1.0};
+
 
 GLfloat redTrans[] = {0.9,0.1,0.0,0.5};
 GLfloat greenTrans[] = {0.0,1.0,0.0,0.5};
@@ -311,20 +315,27 @@ void showCtrlPoints()
 
 void drawPropeller(void)
 {
-    
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, chrome_ambient);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, chrome_diffuse);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, chrome_specular);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
-    
+
+    glPushMatrix();
+    glRotatef(90.0, 1.0, 0.0, 0.0);
+
+    GLUquadricObj * propCylinder;
+    propCylinder = gluNewQuadric();
+    gluQuadricDrawStyle(propCylinder, GLU_FILL );
+    gluCylinder(propCylinder,1.0,1.0, 2.0,20,20);
+    gluDeleteQuadric(propCylinder);
+    glPopMatrix();
+
     glPushMatrix();
     glutSolidSphere(1.0,20,20);
+    glRotatef(propRotation, 0.0, 1.0, 0.0);
     glPopMatrix();
     
     glPushMatrix();
     // glTranslatef(0.0, 0.0, 0.5);
     glRotatef(90.0, 1.0, 0.0, 0.0);
     glRotatef(180.0, 0.0, 1.0, 0.0);
+    glRotatef(propRotation, 0.0, 0.0, 1.0);
     drawBezierSurface();
     // showCtrlPoints();
     glPopMatrix();
@@ -332,8 +343,19 @@ void drawPropeller(void)
     glPushMatrix();
     // glTranslatef(0.0, 0.0, -0.5);
     glRotatef(-90.0, 1.0, 0.0, 0.0);
+    glRotatef(propRotation, 0.0, 0.0, 1.0);
     drawBezierSurface();
     // showCtrlPoints();
+    glPopMatrix();
+}
+
+// one bar using 2 propellers
+void drawPropBar(void)
+{
+    glPushMatrix();
+    // glTranslatef(-2, 2, 0.0);
+    glScalef(25.0, 0.5, 1.0);
+    glutSolidCube(2.0);
     glPopMatrix();
 }
 
@@ -346,6 +368,37 @@ void drawDrone(void)
         lightsPos();
     }
 
+    // draw propellers
+    if (greyFinish)
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, greyAmbient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, greyDiffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, greySpecular);
+    }
+    else
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, whiteAmbient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, whiteDiffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, whiteSpecular);
+        
+    }
+    drawPropBar();
+    
+    if (chromeFinish)
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, chromeAmbient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, chromeDiffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, chromeSpecular);
+    }
+    else
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, bronzeAmbient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, bronzeDiffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, bronzeSpecular);
+        
+    }
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+    
     drawPropeller();
 
     // use material info
@@ -366,6 +419,7 @@ void drawDrone(void)
 
 void drawCanvas(void)
 {
+
     drawDrone();
     
     // drawPlanet(0, angle[0]);
@@ -396,12 +450,25 @@ void drawCanvas(void)
 // rotate the propellers
 void rotate(int delta)
 {
-
+    if (propRotation == 360.0)
+    {
+        // propRotation=0.0;
+        propRotation=delta;
+    }
+    else
+    {
+        propRotation+=delta;
+    } 
+    
+    glutTimerFunc(200, rotate, 20);     
+    // glutSwapBuffers();
+    glutPostRedisplay();
 }
 
+// move the drone in orbit
 void move(int delta)
 {
-    printf("moving...  \n");
+    printf("flying...  \n");
     // for(int i=0;i< PLANETS;i++)
     // {
     //     // limit needed (cf. sin/cos(angle))? 
@@ -443,13 +510,15 @@ void keys(unsigned char key, int x, int y)
         case 'p' : mode='p'; printf("symmetric perspective projection\n"); break;
         case 'f' : mode='f'; printf("general perspective projection\n"); break;
         case 'h' : visualAids=!visualAids; printf("visual assistance\n"); break;
-        case 't' : texture=!texture; printf("texture please\n"); break;
-
-        //lighting
+        //lighting & material choice
         // case 'o' : glEnable(GL_LIGHT0); printf("light 1 on  diffuse\n"); break;
         // case 'O' : glDisable(GL_LIGHT0); printf("light 1 off  \n"); break;
-        // moving planets
-        case 'm' : glutTimerFunc(500, move, 1); printf("move around...  \n"); break;
+        case 't' : texture=!texture; printf("texture please\n"); break;
+        case 'P' : chromeFinish=!chromeFinish; printf("propeller style\n"); break;
+        case 'G' : greyFinish=!greyFinish; printf("frame style\n"); break;
+        // moving objects
+        case 'R' : glutTimerFunc(200, rotate, 20); printf("activate propellers...  \n"); break;
+        case 'F' : glutTimerFunc(500, move, 1); printf("fly around...  \n"); break;
         case ESC: exit(0); break;
     }
     printf("Camera x%5.1f y%5.1f z%5.1f ",x_0,y_0,z_0);
@@ -522,11 +591,17 @@ void displayFcn(void)
 int main(int argc, char * argv[]) {
     if ( argc > 1 )
     {
-        // use first param
+        // propeller argument: should be even
         char *arg = argv[1];
         propellers = atoi(arg);
+        if (propellers % 2 != 0)
+        {
+            printf("Propellers should be an even number, %d is not even...\n",propellers);
+            exit(0);
+        }
+        
         if ( argc > 2 )
-                // use second param
+                // mode argument
                 mode = argv[2][0];
     }
     printf("  near %lf  far %lf mode %c\n", near, far, mode);
