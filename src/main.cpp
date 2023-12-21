@@ -17,6 +17,7 @@ static GLuint texName[NUMB];
 #define PLANETS 8
 #define LCONTROL 6
 #define WCONTROL 4
+#define MAXPROP 6
 
 
 GLfloat xORbit[PLANETS] = {4.06, 5.68, 7.01, 8.42, 10.66, 12.26, 13.96, 15.41};
@@ -90,7 +91,7 @@ GLfloat grey[3] = {0.412, 0.412, 0.412};
 //     {{-1.5, 8.0, 0.0}, {-0.5, 8.0, 1.0}, {0.5, 8.0, 1.0}, {0.5, 8.0, 0.0}},
 // };
 
-GLfloat controlPoints[6][4][3] = {
+GLfloat controlPoints[LCONTROL][WCONTROL][3] = {
     {{-0.5, 0.0, 0.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {0.0, 0.0, 0.0}},
     {{-1.5, 2.0, 0.0}, {-0.5, 2.0, 1.0}, {0.5, 2.0, 1.0}, {1.0, 2.0, 0.0}},
     {{-1.5, 4.0, 0.0}, {-0.5, 4.0, 1.0}, {0.5, 4.0, 1.0}, {1.0, 4.0, 0.0}},
@@ -315,10 +316,19 @@ void showCtrlPoints()
 
 void drawPropeller(char pos)
 {
-
+     
+    glPushMatrix();
+    if (pos == 'l')
+    {
+        glTranslatef(-34, 2, 0.0);
+    }
+    else
+    {
+        glTranslatef(34, 2, 0.0);
+    }
+    
     glPushMatrix();
     glRotatef(90.0, 1.0, 0.0, 0.0);
-
     GLUquadricObj * propCylinder;
     propCylinder = gluNewQuadric();
     gluQuadricDrawStyle(propCylinder, GLU_FILL );
@@ -327,12 +337,12 @@ void drawPropeller(char pos)
     glPopMatrix();
 
     glPushMatrix();
+    glRotatef(90.0, 1.0, 0.0, 0.0);
+    glRotatef(propRotation, 0.0, 0.0, 1.0);
     glutSolidSphere(1.0,20,20);
-    glRotatef(propRotation, 0.0, 1.0, 0.0);
     glPopMatrix();
-    
+
     glPushMatrix();
-    // glTranslatef(0.0, 0.0, 0.5);
     glRotatef(90.0, 1.0, 0.0, 0.0);
     glRotatef(180.0, 0.0, 1.0, 0.0);
     glRotatef(propRotation, 0.0, 0.0, 1.0);
@@ -341,24 +351,50 @@ void drawPropeller(char pos)
     glPopMatrix();
 
     glPushMatrix();
-    // glTranslatef(0.0, 0.0, -0.5);
     glRotatef(-90.0, 1.0, 0.0, 0.0);
     glRotatef(propRotation, 0.0, 0.0, 1.0);
     drawBezierSurface();
     // showCtrlPoints();
     glPopMatrix();
+    
+    glPopMatrix();
+    
+}
 
+void drawFeet(char pos)
+{
+    glPushMatrix();
     if (pos == 'l')
     {
-        glPushMatrix();
-        glTranslatef(-2, 2, 0.0);
-        
+        glTranslatef(-14, 2, 0.0);
     }
     else
     {
-
+        glTranslatef(14, 2, 0.0);
     }
-    
+
+    glPushMatrix();
+    glRotatef(90.0, 1.0, 0.0, 0.0);
+    glutSolidSphere(1.0,20,20);
+    glPopMatrix();
+
+    glPushMatrix();
+    glRotatef(90.0, 1.0, 0.0, 0.0);
+    GLUquadricObj * propCylinder;
+    propCylinder = gluNewQuadric();
+    gluQuadricDrawStyle(propCylinder, GLU_FILL );
+    gluCylinder(propCylinder,1.0,1.0, 15.0,20,20);
+    gluDeleteQuadric(propCylinder);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.0, -15.0, 0.0);
+    glScalef(5.0, 0.2, 1.0);
+    glutSolidCube(2.0);
+    glPopMatrix();
+
+    glPopMatrix();
+
 }
 
 // one bar using 2 propellers
@@ -366,7 +402,7 @@ void drawPropBar(void)
 {
     glPushMatrix();
     // glTranslatef(-2, 2, 0.0);
-    glScalef(25.0, 0.5, 1.0);
+    glScalef(35.0, 0.5, 1.0);
     glutSolidCube(2.0);
     glPopMatrix();
 
@@ -375,17 +411,20 @@ void drawPropBar(void)
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, chromeAmbient);
         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, chromeDiffuse);
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, chromeSpecular);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
     }
     else
     {
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, bronzeAmbient);
         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, bronzeDiffuse);
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, bronzeSpecular);
-        
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
     }
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+    
     drawPropeller('l');
     drawPropeller('r');
+    drawFeet('l');
+    drawFeet('r');
 }
 
 // generate a single drone
@@ -397,28 +436,69 @@ void drawDrone(void)
         lightsPos();
     }
 
-    // draw propellers
     if (greyFinish)
     {
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, greyAmbient);
         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, greyDiffuse);
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, greySpecular);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
     }
     else
     {
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, whiteAmbient);
         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, whiteDiffuse);
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, whiteSpecular);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
         
     }
-    drawPropBar();
-    
-    
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
-    
-    
 
-    // use material info
+    // torus to hold propeller bars
+    glPushMatrix();
+    glRotatef(90.0, 1.0, 0.0, 0.0);
+    glutSolidTorus(1.5,8.0,20,20);
+    glPopMatrix();
+
+    // draw propellers
+    for(int i=0;i< (propellers/2);i++)
+    {
+        int angle;
+        if (i==0) angle=0;
+
+        glPushMatrix();
+        drawPropBar();
+        // glTranslatef(-2, 2, 0.0);
+        glRotatef(angle, 0.0, 1.0, 0.0);
+        drawPropBar();
+        glPopMatrix();
+        angle+=360/propellers;
+    }
+    
+    // the spot
+    glPushMatrix();
+    glRotatef(90.0, 1.0, 0.0, 0.0);
+    GLUquadricObj * lightCylinder;
+    lightCylinder = gluNewQuadric();
+    gluQuadricDrawStyle(lightCylinder, GLU_FILL );
+    gluCylinder(lightCylinder,4.0,2.5, 5.0,20,20);
+    gluDeleteQuadric(lightCylinder);
+    glPopMatrix();
+
+    // the casing
+    static GLUquadricObj * myObj = 0;
+    if(!myObj)
+    {
+        myObj = gluNewQuadric();
+        gluQuadricDrawStyle(myObj, GLU_FILL);
+    }
+    double r = 12.0;
+    double clip[2][4] = { { r, 0.0, 0.0, 1.0 }, { -r, 0.0, 0.0, 1.0 } };
+    glPushMatrix();
+    glTranslatef(0.0, -3.0, 0.0);
+    glRotatef(90.0, 0.0, 0.0, 1.0);
+    glEnable(GL_CLIP_PLANE0);
+    glClipPlane(GL_CLIP_PLANE0, clip[0]);
+    gluSphere(myObj, r, 20, 20);
+    glPopMatrix();
 
    
 
@@ -476,9 +556,7 @@ void rotate(int delta)
     {
         propRotation+=delta;
     } 
-    
     glutTimerFunc(200, rotate, 20);     
-    // glutSwapBuffers();
     glutPostRedisplay();
 }
 
@@ -555,11 +633,11 @@ void winReshapeFcn (GLint newWidth, GLint newHeight)
         case 'o':
             if (aspect >= 1.0)
             {
-                glOrtho(-20*aspect, 20*aspect, -20, 20, near, far);
+                glOrtho(-40*aspect, 40*aspect, -40, 40, near, far);
             }
             else
             {
-                glOrtho(-20, 20, -20/aspect, 20/aspect, near, far);
+                glOrtho(-40, 40, -40/aspect, 40/aspect, near, far);
             }
             break;
         case 'p':
@@ -616,6 +694,12 @@ int main(int argc, char * argv[]) {
             printf("Propellers should be an even number, %d is not even...\n",propellers);
             exit(0);
         }
+        else if (propellers > MAXPROP)
+        {
+            printf("The maximum number of propellers is 6, %d is bigger...\n",propellers);
+            exit(0);
+        }
+         
         
         if ( argc > 2 )
                 // mode argument
