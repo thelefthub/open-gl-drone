@@ -49,7 +49,10 @@ GLfloat black[4] = {0.0,0.0,0.0};
 GLfloat centerLight[] = {0.0 ,6.0, 0.0, 1.0};
 GLfloat leftLight[] = {-20.0 ,3.0, 20.0, 1.0};
 GLfloat rightLight[] = {20.0 , 3.0, -20.0, 1.0};
-GLfloat droneLight[] = {0.0 , 0.0, 0.0, 1.0};
+GLfloat ligthX = 0.0;
+GLfloat ligthY = 0.0;
+GLfloat ligthZ = 0.0;
+GLfloat droneLight[] = {ligthX , ligthY, ligthZ, 1.0};
 GLfloat dir[] = {0.0,-50.0,0.0};
 GLfloat ambient[] = {0.2, 0.2, 0.2, 1.0};
 GLfloat shine[] = {60.0};
@@ -211,8 +214,8 @@ void lightsPos(void)
     glVertex3f(0.0,0.0,0.0);
     glVertex3fv(rightLight);
     glVertex3f(0.0,0.0,0.0);
-    glVertex3fv(droneLight);
-    glVertex3fv(dir);
+    // glVertex3fv(droneLight);
+    // glVertex3fv(dir);
     glEnd();
 }
 
@@ -250,6 +253,23 @@ void setOrbit (GLfloat orbitSpeed, GLfloat orbitRadiusX,  GLfloat orbitRadiusZ)
     GLfloat droneZ = 0.0 + (orbitRadiusZ * sin(orbitSpeed / 180.0 * M_PI));
     printf("in orbit with speed %f...  \n",orbitSpeed );
     glTranslatef(droneX, height, droneZ);
+
+    ligthX = droneX;
+    ligthY = height;
+    ligthZ = droneZ;
+
+    glLightfv(GL_LIGHT3,GL_POSITION,droneLight);
+
+    if (visualAids)
+    {
+        glBegin(GL_LINES);
+        glVertex3fv(droneLight);
+        glVertex3fv(dir);
+        glEnd();
+
+    }
+    
+    
 
 }
 
@@ -661,7 +681,7 @@ void displayFcn(void)
     glLightfv(GL_LIGHT0,GL_POSITION,centerLight);
     glLightfv(GL_LIGHT1,GL_POSITION,leftLight);
     glLightfv(GL_LIGHT2,GL_POSITION,rightLight);
-    glLightfv(GL_LIGHT3,GL_POSITION,droneLight);
+    // glLightfv(GL_LIGHT3,GL_POSITION,droneLight);
 
     glEnable(GL_NORMALIZE);
     glEnable(GL_LIGHTING);
@@ -669,7 +689,8 @@ void displayFcn(void)
     
     drawCanvas();
     // imageBackground();
-
+    // glLightfv(GL_LIGHT3,GL_POSITION,droneLight);
+    
     //repeat timerfunct and swap buffers in display?
     glutSwapBuffers();
 
