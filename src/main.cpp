@@ -17,44 +17,40 @@ static GLuint texName[NUMB];
 #define PLANETS 8
 #define LCONTROL 6
 #define WCONTROL 4
+#define BLCONTROL 4
+#define BWCONTROL 4
 #define MAXPROP 6
 #define MAXDRONE 3
+#define MAXHEIGHT 5
 
 // some random orbit data
-GLfloat xORbit[MAXDRONE] = {22.26, 23.96, 25.41};
-GLfloat zORbit[MAXDRONE] = {21.26, 24.46, 26.41};
-// GLfloat angle[MAXDRONE] = {0.0, 60.0,  120.0};
-// GLfloat speed[MAXDRONE] = {1.0, 1.5, 3.0};
+GLfloat xORbit[MAXDRONE] = {-75.50, 75.50, 0.50};
+GLfloat zORbit[MAXDRONE] = { -10.50, 30.50, 10.50};
 
-GLdouble x_0=50.0, y_0=50.0, z_0=50.0; 
-// GLdouble x_0=0.5, y_0=70.0, z_0=0.5; //cf. top view!
-// GLdouble x_0=0.0, y_0=10.0, z_0=20.0; //cf. side view!
+GLdouble x_0=50.0, y_0=50.0, z_0=50.0;
 
 // GLdouble x_0=0.0, y_0=20.0, z_0=20.0; 
 GLdouble x_ref=0.0, y_ref=0.0, z_ref=0.0;
 GLdouble near = 1.0, far = 1000.0;
 char mode = 'o';
-bool visualAids = true, texture = true, chromeFinish = true, greyFinish=true, propellersOn=false;
-GLfloat propRotation = 0.0, height = 0.0, speed = 10.0;
-GLint winWidth = 1000, winHeight = 1000, propellers = 4; 
-
-// some colours
-GLfloat yellow[4] = {1.0, 1.0, 0.0, 1.0};
-GLfloat red[4] = {0.9,0.1,0.0, 1.0};
-GLfloat green[4] = {0.0,1.0,0.0, 1.0};
-GLfloat purple[4] = {0.9,0.0,0.9, 1.0};
-GLfloat black[4] = {0.0,0.0,0.0};
+bool visualAids = true, texture = true, chromeFinish = true, greyFinish=true, yellowFinish=true, propellersOn=false;
+GLfloat propRotation = 0.0, height = 0.0, speed = 60.0;
+GLint winWidth = 1000, winHeight = 1000, propellers = 4, drones = 1; 
 
 // colour and light definition
-GLfloat centerLight[] = {0.0 ,6.0, 0.0, 1.0};
-GLfloat leftLight[] = {-20.0 ,3.0, 20.0, 1.0};
-GLfloat rightLight[] = {20.0 , 3.0, -20.0, 1.0};
+GLfloat centerLight[] = {0.0 ,90.0, 0.0, 1.0};
+GLfloat leftLight[] = {-40.0 ,00.0, 60.0, 1.0};
+GLfloat rightLight[] = {40.0 , 60.0, -40.0, 1.0};
 GLfloat ligthX = 0.0;
 GLfloat ligthY = 0.0;
 GLfloat ligthZ = 0.0;
 GLfloat droneLight[] = {ligthX , ligthY, ligthZ, 1.0};
 GLfloat dir[] = {0.0,-50.0,0.0};
 GLfloat ambient[] = {0.2, 0.2, 0.2, 1.0};
+GLfloat red[] = {0.9,0.1,0.0, 1.0};
+GLfloat greenBlue[] = {0.0,0.7,0.5, 1.0};
+GLfloat blue[] = {0.0,0.0,1.0, 1.0};
+GLfloat yellow[] = {1.0, 1.0, 0.0, 1.0};
 GLfloat shine[] = {60.0};
 GLfloat chromeAmbient[] = {0.46, 0.58, 0.35, 1.0};
 GLfloat chromeDiffuse[] = {0.23, 0.29, 0.17, 1.0};
@@ -75,35 +71,14 @@ GLfloat lilaAmbient[] = {0.45, 0.15, 0.75, 1.0};
 GLfloat lilaDiffuse[] = {0.55, 0.15, 0.65, 1.0};
 GLfloat lilaSpecular[] = {0.35, 0.15, 0.85, 1.0};
 
-
 GLfloat redTrans[] = {0.9,0.1,0.0,0.5};
 GLfloat greenTrans[] = {0.0,1.0,0.0,0.5};
 GLfloat yellowTrans[] = {1.0, 1.0, 0.0, 0.5};
 
 GLfloat grey[3] = {0.412, 0.412, 0.412};
 
-double r = 12.0;
-double clip[2][4] = { { r, 0.0, 0.0, 1.0 }, { -r, 0.0, 0.0, 1.0 } };
-
-// GLfloat controlPoints[6][4][3] = {
-//     {{-1.0, 0.0, 0.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {1.0, 0.0, 0.0}},
-//     {{-1.0, 1.0, 0.0}, {-0.5, 1.0, 1.0}, {0.5, 1.0, 1.0}, {1.0, 1.0, 0.0}},
-//     {{-1.0, 2.0, 0.0}, {-0.5, 2.0, 1.0}, {0.5, 2.0, 1.0}, {1.0, 2.0, 0.0}},
-//     {{-1.0, 3.0, 0.0}, {-0.5, 3.0, 1.0}, {0.5, 3.0, 1.0}, {1.0, 3.0, 0.0}},
-//     {{-1.0, 4.0, 0.0}, {-0.5, 4.0, 1.0}, {0.5, 4.0, 1.0}, {1.0, 4.0, 0.0}},
-//     {{-1.0, 5.0, 0.0}, {-0.5, 5.0, 1.0}, {0.5, 5.0, 1.0}, {1.0, 5.0, 0.0}},
-// };
-
-
-// propeller control points
-// GLfloat controlPoints[6][4][3] = {
-//     {{-1.0, 0.0, 0.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {0.0, 0.0, 0.0}},
-//     {{-2.0, 1.0, 0.0}, {-0.5, 1.0, 1.0}, {0.5, 1.0, 1.0}, {1.0, 1.0, 0.0}},
-//     {{-2.0, 2.0, 0.0}, {-0.5, 2.0, 1.0}, {0.5, 2.0, 1.0}, {1.0, 2.0, 0.0}},
-//     {{-2.0, 3.0, 0.0}, {-0.5, 3.0, 1.0}, {0.5, 3.0, 1.0}, {1.0, 3.0, 0.0}},
-//     {{-2.0, 4.0, 0.0}, {-0.5, 4.0, 1.0}, {0.5, 4.0, 1.0}, {1.0, 4.0, 0.0}},
-//     {{-1.5, 8.0, 0.0}, {-0.5, 8.0, 1.0}, {0.5, 8.0, 1.0}, {0.5, 8.0, 0.0}},
-// };
+// double r = 12.0;
+// double clip[2][4] = { { r, 0.0, 0.0, 1.0 }, { -r, 0.0, 0.0, 1.0 } };
 
 GLfloat controlPoints[LCONTROL][WCONTROL][3] = {
     {{-0.5, 0.0, 0.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {0.0, 0.0, 0.0}},
@@ -114,32 +89,41 @@ GLfloat controlPoints[LCONTROL][WCONTROL][3] = {
     {{-1.0, 16.0, 0.0}, {-0.5, 16.0, 1.0}, {0.5, 16.0, 1.0}, {0.5, 16.0, 0.0}},
 };
 
+GLfloat controlPoints2[BLCONTROL][BWCONTROL][3] = {
+    // {{-1.0, 0.0, 1.0}, {-0.5, 0.5, 1.0}, {0.5, 0.5, 1.0}, {1.0, 0.0, 1.0}},
+    // {{-1.0, 0.5, 0.0}, {-0.5, 1.0, 0.0}, {0.5, 1.0, 0.0}, {1.0, 0.5, 0.0}},
+    // {{-1.0, 0.5, -1.0}, {-0.5, 1.0, -1.0}, {0.5, 1.0, -1.0}, {1.0, 0.5, -1.0}},
+    // {{-1.0, 0.0, -1.0}, {-0.5, 0.5, -1.0}, {0.5, 0.5, -1.0}, {1.0, 0.0, -1.0}}
+    {{-1.0, 0.0, 1.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {1.0, 0.0, 1.0}},
+    {{-1.0, 0.2, 0.0}, {-0.5, 1.0, 0.0}, {0.5, 1.0, 0.0}, {1.0, 0.2, 0.0}},
+    {{-1.0, 0.2, -1.0}, {-0.5, 1.0, -1.0}, {0.5, 1.0, -1.0}, {1.0, 0.2, -1.0}},
+    {{-1.0, 0.0, -1.0}, {-0.5, 0.0, -1.0}, {0.5, 0.0, -1.0}, {1.0, 0.0, -1.0}}
+};
+
+GLUnurbsObj *myNurb;
+
+
+
 void lightsOn(void)
 {
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-    // glLightfv(GL_LIGHT0,GL_DIFFUSE,ambient);
-    // glLightfv(GL_LIGHT0,GL_SPECULAR,ambient);
     glEnable(GL_LIGHT0);
-    glLightfv(GL_LIGHT1, GL_AMBIENT, ambient);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, greenBlue);
     glEnable(GL_LIGHT1);
-
-    glLightfv(GL_LIGHT2, GL_AMBIENT, ambient);
+    glLightfv(GL_LIGHT2, GL_SPECULAR, red);
     glEnable(GL_LIGHT2);
 
+    // the spot
     glLightfv(GL_LIGHT3, GL_AMBIENT, yellow);
     glLightfv(GL_LIGHT3,GL_DIFFUSE,yellow);
     glLightfv(GL_LIGHT3,GL_SPECULAR,yellow);
-    // glEnable(GL_LIGHT3);
-
     glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, 45.0);
     glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, dir);
     glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, 10.0);
     glEnable(GL_LIGHT3);
-
-    
 
     // //general light mode
     // glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
@@ -166,10 +150,10 @@ void init(void)
       stbi_uc *data = stbi_load(images[i],&x,&y,&n,0);
       if( data == NULL)
       {
-        printf("%s niet gevonden\n",images[i]);
+        printf("%s not found\n",images[i]);
         exit(0);
       }
-      printf("size X is %d en size Y is %d en n %d\n",x,y,n);
+      printf("size X is %d and size Y is %d and n %d\n",x,y,n);
       glBindTexture (GL_TEXTURE_2D,texName[i]);
       GLint format;
       switch(n){
@@ -177,12 +161,17 @@ void init(void)
           break;
         case 4 : format = GL_RGBA;
           break;
-        default: printf("Afbeelding niet genoeg componenten per pixel\n");
+        default: printf("Not enough components per pixel\n");
           exit(0);
       }
       glTexImage2D(GL_TEXTURE_2D, 0,format ,x,y, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
       stbi_image_free(data);
     }
+
+    // to generate the B-spline surface
+    myNurb = gluNewNurbsRenderer();
+    gluNurbsProperty(myNurb, GLU_SAMPLING_TOLERANCE, 25.0);
+    gluNurbsProperty(myNurb, GLU_DISPLAY_MODE, GLU_FILL);
 
     lightsOn();
     
@@ -206,17 +195,15 @@ void drawAxes(void)
 // visual aid: showing light sources
 void lightsPos(void)
 {
-    glColor3fv(grey);
-    glBegin(GL_LINES);
-    glVertex3fv(centerLight);
-    glVertex3f(0.0,0.0,0.0);
-    glVertex3fv(leftLight);
-    glVertex3f(0.0,0.0,0.0);
-    glVertex3fv(rightLight);
-    glVertex3f(0.0,0.0,0.0);
-    // glVertex3fv(droneLight);
-    // glVertex3fv(dir);
-    glEnd();
+    // glColor3fv(grey);
+    // glBegin(GL_LINES);
+    // glVertex3fv(centerLight);
+    // glVertex3f(0.0,0.0,0.0);
+    // glVertex3fv(leftLight);
+    // glVertex3f(0.0,0.0,0.0);
+    // glVertex3fv(rightLight);
+    // glVertex3f(0.0,0.0,0.0);
+    // glEnd();
 }
 
 void imageBackground(void)
@@ -251,7 +238,6 @@ void setOrbit (GLfloat orbitSpeed, GLfloat orbitRadiusX,  GLfloat orbitRadiusZ)
 
     GLfloat droneX =  0.0 + (orbitRadiusX * cos(orbitSpeed / 180.0 * M_PI));
     GLfloat droneZ = 0.0 + (orbitRadiusZ * sin(orbitSpeed / 180.0 * M_PI));
-    printf("in orbit with speed %f...  \n",orbitSpeed );
     glTranslatef(droneX, height, droneZ);
 
     ligthX = droneX;
@@ -266,7 +252,6 @@ void setOrbit (GLfloat orbitSpeed, GLfloat orbitRadiusX,  GLfloat orbitRadiusZ)
         glVertex3fv(droneLight);
         glVertex3fv(dir);
         glEnd();
-
     }
     
     
@@ -461,8 +446,48 @@ void drawPropBar(void)
     drawFeet('r');
 }
 
+void drawSideCasing(GLfloat rotation, GLfloat xTrans, GLfloat yTrans, GLfloat zTrans)
+{
+
+    GLfloat knots[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
+
+    int i, j;
+
+    glPushMatrix();
+    glScalef (8.0, 8.0, 8.0);
+    glRotatef(rotation, 1.0,0.0,0.0);
+    glTranslatef(0.0, 2.0, 0.0); // XZY drawSideCasing(-90.0, 0.0, 2.0, 0.0);
+    glTranslatef(xTrans, yTrans, zTrans);
+
+    gluBeginSurface(myNurb);
+    gluNurbsSurface(myNurb, 
+                    8, knots, 8, knots,
+                    4 * 3, 3, &controlPoints2[0][0][0], 
+                    4, 4, GL_MAP2_VERTEX_3);
+    gluEndSurface(myNurb);
+
+    // if (showPoints) {
+    //     glPointSize(5.0);
+    //     // glDisable(GL_LIGHTING);
+    //     glColor3f(1.0, 1.0, 0.0);
+    //     glBegin(GL_POINTS);
+    //     for (i = 0; i < 4; i++) {
+    //         for (j = 0; j < 4; j++) {
+    //             glVertex3f(controlPoints2[i][j][0], 
+    //                     controlPoints2[i][j][1], controlPoints2[i][j][2]);
+    //         }
+    //     }
+    //     glEnd();
+    //     // glEnable(GL_LIGHTING);
+    // }
+    glPopMatrix();
+    
+
+
+}
+
 // generate a single drone
-void drawDrone(void)
+void drawDrone(int number)
 {
     if (greyFinish)
     {
@@ -483,7 +508,7 @@ void drawDrone(void)
     //set height and orbit
     glPushMatrix();
     glTranslatef(0.0, height, 0.0);
-    setOrbit(speed,xORbit[0], zORbit[0]); 
+    setOrbit(speed,xORbit[number], zORbit[number]); 
 
     // torus to hold propeller bars
     glPushMatrix();
@@ -516,7 +541,23 @@ void drawDrone(void)
     gluDeleteQuadric(lightCylinder);
     glPopMatrix();
 
-    // the casing
+    if (yellowFinish)
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, yellowAmbient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, yellowDiffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, yellowSpecular);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+    }
+    else
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, lilaAmbient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lilaDiffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, lilaSpecular);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+
+    }
+    
+    //the casing
     // glPushMatrix();
     // static GLUquadricObj * theSphere;
     // theSphere = gluNewQuadric();
@@ -527,6 +568,20 @@ void drawDrone(void)
     // glClipPlane(GL_CLIP_PLANE0, clip[0]);
     // gluSphere(theSphere, r, 20, 20);
     // glPopMatrix();
+    
+    //a B-spline side casing
+    GLfloat rotation = 0.0;
+    for(int i=0;i<4;i++)
+    {
+        glPushMatrix();
+        glRotatef(rotation, 0.0,1.0,0.0);
+        drawSideCasing(-90.0, 0.0, -1.0, 0.0); // XZY
+        glPopMatrix();
+
+        rotation -= 90.0;
+    }
+
+     //a B-spline top casing
     
 
     glPopMatrix();
@@ -548,7 +603,21 @@ void drawCanvas(void)
         lightsPos();
     }
 
-    drawDrone();
+    for(int i=0;i<drones;i++)
+    {
+        drawDrone(i);
+    }
+
+    // GLfloat rotation = 0.0;
+    // for(int i=0;i<4;i++)
+    // {
+    //     glPushMatrix();
+    //     glRotatef(rotation, 0.0,1.0,0.0);
+    //     drawSideCasing(-90.0, 0.0, -1.0, 0.0); // XZY
+    //     glPopMatrix();
+
+    //     rotation -= 90.0;
+    // }
     
     // glDepthMask(GL_TRUE);
     // glDisable(GL_BLEND);
@@ -596,9 +665,11 @@ void keys(unsigned char key, int x, int y)
     switch (key)
     {
         //move camera
-        case 'x': x_0++; break;
+        // case 'x': x_0++; break;
+        case 'x': x_0=0.0, y_0=10.0, z_0=20.0; break; //cf. side view!
         case 'X': x_0--; break;
-        case 'y': y_0++; break;
+        // case 'y': y_0++; break;
+        case 'y': x_0=0.5, y_0=70.0, z_0=0.5; break; //cf. top view!
         case 'Y': y_0--; break;
         case 'z': z_0++; break;
         case 'Z': z_0--; break;
@@ -614,17 +685,24 @@ void keys(unsigned char key, int x, int y)
         case 'p' : mode='p'; printf("symmetric perspective projection\n"); break;
         case 'f' : mode='f'; printf("general perspective projection\n"); break;
         case 'v' : visualAids=!visualAids; printf("visual assistance\n"); break;
+        case 'n' : if (drones<3)drones++;printf("new drone - max number is 3\n"); break;
         //lighting & material choice
-        // case 'o' : glEnable(GL_LIGHT0); printf("light 1 on  diffuse\n"); break;
-        // case 'O' : glDisable(GL_LIGHT0); printf("light 1 off  \n"); break;
+        case 'w' : glEnable(GL_LIGHT0); printf("light 1 on - ambient\n"); break;
+        case 'W' : glDisable(GL_LIGHT0); printf("light 1 off  \n"); break;
+        case 'd' : glEnable(GL_LIGHT1); printf("light 2 on  diffuse\n"); break;
+        case 'D' : glDisable(GL_LIGHT1); printf("light 2 off  \n"); break;
+        case 's' : glEnable(GL_LIGHT2); printf("light 3 on  specular\n"); break;
+        case 'S' : glDisable(GL_LIGHT2); printf("light 3 off  \n"); break;
+        case 'l' : glEnable(GL_LIGHT3); printf("light 4 on spot\n"); break;
+        case 'L' : glDisable(GL_LIGHT3); printf("light 4 off  \n"); break;
         case 't' : texture=!texture; printf("texture please\n"); break;
         case 'P' : chromeFinish=!chromeFinish; printf("propeller style\n"); break;
         case 'F' : greyFinish=!greyFinish; printf("frame style\n"); break;
-        // moving objects
-        case 'g' : glutTimerFunc(10, rotate, 20); propellersOn=true; printf("activate propellers...  \n"); break;
-        case 'G' : glutTimerFunc(200, fly, 10); printf("fly around...  \n"); break;
-        case 'h' : if (height>0 ) height--; printf("go down...  \n"); break;
-        case 'H' : height++; printf("go up...  \n"); break;
+        // move objects
+        case 'g' : glutTimerFunc(10, rotate, 20); propellersOn=true; printf("activate propellers\n"); break;
+        case 'G' : glutTimerFunc(200, fly, 10); printf("fly around\n"); break;
+        case 'h' : if (height>0 ) height--; printf("go down\n"); break;
+        case 'H' : if (height<MAXHEIGHT)height++; printf("go up until max height\n"); break;
 
         case ESC: exit(0); break;
     }
@@ -642,6 +720,16 @@ void winReshapeFcn (GLint newWidth, GLint newHeight)
     glShadeModel( GL_FLAT ); // GL_FLAT or GL_SMOOTH shading
     switch (mode)
     {
+        // case 'o':
+            // if (aspect >= 1.0)
+            // {
+            //     glOrtho(-10*aspect, 10*aspect, -10, 10, near, far);
+            // }
+            // else
+            // {
+            //     glOrtho(-10, 10, -10/aspect, 10/aspect, near, far);
+            // }
+            // break;
         case 'o':
             if (aspect >= 1.0)
             {
