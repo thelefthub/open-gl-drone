@@ -90,17 +90,25 @@ GLfloat controlPoints[LCONTROL][WCONTROL][3] = {
 };
 
 GLfloat controlPoints2[BLCONTROL][BWCONTROL][3] = {
-    // {{-1.0, 0.0, 1.0}, {-0.5, 0.5, 1.0}, {0.5, 0.5, 1.0}, {1.0, 0.0, 1.0}},
-    // {{-1.0, 0.5, 0.0}, {-0.5, 1.0, 0.0}, {0.5, 1.0, 0.0}, {1.0, 0.5, 0.0}},
-    // {{-1.0, 0.5, -1.0}, {-0.5, 1.0, -1.0}, {0.5, 1.0, -1.0}, {1.0, 0.5, -1.0}},
-    // {{-1.0, 0.0, -1.0}, {-0.5, 0.5, -1.0}, {0.5, 0.5, -1.0}, {1.0, 0.0, -1.0}}
     {{-1.0, 0.0, 1.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {1.0, 0.0, 1.0}},
     {{-1.0, 0.2, 0.0}, {-0.5, 1.0, 0.0}, {0.5, 1.0, 0.0}, {1.0, 0.2, 0.0}},
     {{-1.0, 0.2, -1.0}, {-0.5, 1.0, -1.0}, {0.5, 1.0, -1.0}, {1.0, 0.2, -1.0}},
     {{-1.0, 0.0, -1.0}, {-0.5, 0.0, -1.0}, {0.5, 0.0, -1.0}, {1.0, 0.0, -1.0}}
 };
 
-GLUnurbsObj *myNurb;
+GLfloat controlPoints3[BLCONTROL][BWCONTROL][3] = {
+    // {{-1.0, 0.0, 1.0}, {-0.5, 0.5, 1.0}, {0.5, 0.5, 1.0}, {1.0, 0.0, 1.0}},
+    // {{-1.0, 0.5, 0.0}, {-0.5, 1.0, 0.0}, {0.5, 1.0, 0.0}, {1.0, 0.5, 0.0}},
+    // {{-1.0, 0.5, -1.0}, {-0.5, 1.0, -1.0}, {0.5, 1.0, -1.0}, {1.0, 0.5, -1.0}},
+    // {{-1.0, 0.0, -1.0}, {-0.5, 0.5, -1.0}, {0.5, 0.5, -1.0}, {1.0, 0.0, -1.0}}
+    {{-1.0, 0.0, 1.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {1.0, 0.0, 1.0}},
+    {{-1.0, 0.0, 0.0}, {-0.5, 0.5, 0.0}, {0.5, 0.5, 0.0}, {1.0, 0.0, 0.0}},
+    {{-1.0, 0.0, -1.0}, {-0.5, 0.0, -1.0}, {0.5, 0.0, -1.0}, {1.0, 0.0, -1.0}},
+    {{-1.0, 0.0, -1.0}, {-0.5, 0.0, -1.0}, {0.5, 0.0, -1.0}, {1.0, 0.0, -1.0}}
+};
+
+GLUnurbsObj *sideNurb;
+GLUnurbsObj *topNurb;
 
 
 
@@ -168,10 +176,14 @@ void init(void)
       stbi_image_free(data);
     }
 
-    // to generate the B-spline surface
-    myNurb = gluNewNurbsRenderer();
-    gluNurbsProperty(myNurb, GLU_SAMPLING_TOLERANCE, 25.0);
-    gluNurbsProperty(myNurb, GLU_DISPLAY_MODE, GLU_FILL);
+    // to generate the B-spline surfaces
+    sideNurb = gluNewNurbsRenderer();
+    gluNurbsProperty(sideNurb, GLU_SAMPLING_TOLERANCE, 25.0);
+    gluNurbsProperty(sideNurb, GLU_DISPLAY_MODE, GLU_FILL);
+
+    topNurb = gluNewNurbsRenderer();
+    gluNurbsProperty(topNurb, GLU_SAMPLING_TOLERANCE, 25.0);
+    gluNurbsProperty(topNurb, GLU_DISPLAY_MODE, GLU_FILL);
 
     lightsOn();
     
@@ -454,17 +466,55 @@ void drawSideCasing(GLfloat rotation, GLfloat xTrans, GLfloat yTrans, GLfloat zT
     int i, j;
 
     glPushMatrix();
-    glScalef (8.0, 8.0, 8.0);
+    glScalef (7.0, 7.0, 7.0);
     glRotatef(rotation, 1.0,0.0,0.0);
     glTranslatef(0.0, 2.0, 0.0); // XZY drawSideCasing(-90.0, 0.0, 2.0, 0.0);
     glTranslatef(xTrans, yTrans, zTrans);
 
-    gluBeginSurface(myNurb);
-    gluNurbsSurface(myNurb, 
+    gluBeginSurface(sideNurb);
+    gluNurbsSurface(sideNurb, 
                     8, knots, 8, knots,
                     4 * 3, 3, &controlPoints2[0][0][0], 
                     4, 4, GL_MAP2_VERTEX_3);
-    gluEndSurface(myNurb);
+    gluEndSurface(sideNurb);
+
+    // if (showPoints) {
+    //     glPointSize(5.0);
+    //     // glDisable(GL_LIGHTING);
+    //     glColor3f(1.0, 1.0, 0.0);
+    //     glBegin(GL_POINTS);
+    //     for (i = 0; i < 4; i++) {
+    //         for (j = 0; j < 4; j++) {
+    //             glVertex3f(controlPoints2[i][j][0], 
+    //                     controlPoints2[i][j][1], controlPoints2[i][j][2]);
+    //         }
+    //     }
+    //     glEnd();
+    //     // glEnable(GL_LIGHTING);
+    // }
+    glPopMatrix();
+    
+
+
+}
+
+void drawTopCasing(void)
+{
+
+    GLfloat knots[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
+
+    int i, j;
+
+    glPushMatrix();
+    glScalef (7.0, 7.0, 7.0);
+    glTranslatef(0.0, 0.7, 0.0);
+
+    gluBeginSurface(topNurb);
+    gluNurbsSurface(topNurb, 
+                    8, knots, 8, knots,
+                    4 * 3, 3, &controlPoints3[0][0][0], 
+                    4, 4, GL_MAP2_VERTEX_3);
+    gluEndSurface(topNurb);
 
     // if (showPoints) {
     //     glPointSize(5.0);
@@ -557,32 +607,21 @@ void drawDrone(int number)
 
     }
     
-    //the casing
-    // glPushMatrix();
-    // static GLUquadricObj * theSphere;
-    // theSphere = gluNewQuadric();
-    // gluQuadricDrawStyle(theSphere, GLU_FILL);
-    // glTranslatef(0.0, -3.0, 0.0);
-    // glRotatef(90.0, 0.0, 0.0, 1.0);
-    // glEnable(GL_CLIP_PLANE0);
-    // glClipPlane(GL_CLIP_PLANE0, clip[0]);
-    // gluSphere(theSphere, r, 20, 20);
-    // glPopMatrix();
-    
     //a B-spline side casing
     GLfloat rotation = 0.0;
     for(int i=0;i<4;i++)
     {
         glPushMatrix();
         glRotatef(rotation, 0.0,1.0,0.0);
-        drawSideCasing(-90.0, 0.0, -1.0, 0.0); // XZY
+        drawSideCasing(-90.0, 0.0, -1.0, -0.3);
+
         glPopMatrix();
 
         rotation -= 90.0;
     }
 
      //a B-spline top casing
-    
+    drawTopCasing();
 
     glPopMatrix();
     
