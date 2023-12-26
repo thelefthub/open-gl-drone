@@ -33,7 +33,7 @@ GLdouble x_0=50.0, y_0=50.0, z_0=50.0;
 GLdouble x_ref=0.0, y_ref=0.0, z_ref=0.0;
 GLdouble near = 1.0, far = 1000.0;
 char mode = 'o';
-bool visualAids = true, ctrlPoints = true, texture = true, chromeFinish = true, greyFinish=true, yellowFinish=true, propellersOn=false;
+bool visualAids = true, ctrlPoints = true, texture = false, chromeFinish = true, greyFinish=true, yellowFinish=false, propellersOn=false, transparent = false;
 GLfloat propRotation = 0.0, height = 0.0, speed = 60.0;
 GLint winWidth = 1000, winHeight = 1000, propellers = 4, drones = 1; 
 
@@ -64,16 +64,16 @@ GLfloat greySpecular[] = {0.11, 0.11, 0.11, 1.0};
 GLfloat whiteAmbient[] = {0.22, 0.22, 0.22, 1.0};
 GLfloat whiteDiffuse[] = {0.33, 0.33, 0.33, 1.0};
 GLfloat whiteSpecular[] = {0.11, 0.11, 0.11, 1.0};
-GLfloat yellowAmbient[] = {0.65, 0.55, 0.15, 1.0};
-GLfloat yellowDiffuse[] = {0.75, 0.45, 0.15, 1.0};
-GLfloat yellowSpecular[] = {0.85, 0.35, 0.15, 1.0};
-GLfloat lilaAmbient[] = {0.45, 0.15, 0.75, 1.0};
-GLfloat lilaDiffuse[] = {0.55, 0.15, 0.65, 1.0};
-GLfloat lilaSpecular[] = {0.35, 0.15, 0.85, 1.0};
+
+// GLfloat alpha = 1.0;
+GLfloat yellowAmbient[] = {0.65, 0.55, 0.15, 0.95};
+GLfloat yellowDiffuse[] = {0.75, 0.45, 0.15, 0.95};
+GLfloat yellowSpecular[] = {0.85, 0.35, 0.15, 0.95};
+GLfloat lilaAmbient[] = {0.45, 0.15, 0.75, 0.95};
+GLfloat lilaDiffuse[] = {0.55, 0.15, 0.65, 0.95};
+GLfloat lilaSpecular[] = {0.35, 0.15, 0.85, 0.95};
 
 GLfloat redTrans[] = {0.9,0.1,0.0,0.5};
-GLfloat greenTrans[] = {0.0,1.0,0.0,0.5};
-GLfloat yellowTrans[] = {1.0, 1.0, 0.0, 0.5};
 
 GLfloat grey[3] = {0.412, 0.412, 0.412};
 
@@ -131,12 +131,10 @@ void lightsOn(void)
     glEnable(GL_LIGHT3);
 
     // //general light mode
-    // glLightModelfv(GL_LIGHT_MODEL_AMBIENT, black);
+    // glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 
-    //enable 
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // glEnable( GL_BLEND );
-
+    // to enable transparency 
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 }
 
@@ -502,7 +500,6 @@ void drawPropBar(void)
 
 void drawSideCasing(GLfloat rotation, GLfloat xTrans, GLfloat yTrans, GLfloat zTrans)
 {
-
     GLfloat knots[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
 
     int i, j;
@@ -549,7 +546,6 @@ void drawSideCasing(GLfloat rotation, GLfloat xTrans, GLfloat yTrans, GLfloat zT
     if (ctrlPoints) showCtrlPoints('s');
 
     glPopMatrix();
-    
 
 
 }
@@ -576,6 +572,11 @@ void drawTopCasing(void)
         glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     }
 
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, lilaAmbient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lilaDiffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, lilaSpecular);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+
     gluBeginSurface(topNurb);
     gluNurbsSurface(topNurb, 
                     8, knots, 8, knots,
@@ -596,7 +597,7 @@ void drawTopCasing(void)
         glDisable(GL_TEXTURE_2D);
 
     }
-
+    
     if (ctrlPoints) showCtrlPoints('t');
     
     glPopMatrix();
@@ -608,6 +609,85 @@ void drawTopCasing(void)
 // generate a single drone
 void drawDrone(int number)
 {
+    
+    // if (greyFinish)
+    // {
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, greyAmbient);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, greyDiffuse);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, greySpecular);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+    // }
+    // else
+    // {
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, whiteAmbient);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, whiteDiffuse);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, whiteSpecular);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+        
+    // }
+    
+
+    //set height and orbit
+    glPushMatrix();
+    glTranslatef(0.0, height, 0.0);
+    setOrbit(speed,xORbit[number], zORbit[number]);
+
+    glPushMatrix();
+    glRotatef(180.0, 0.0, 1.0, 1.0);
+    glTranslatef(0.0, 0.0, -5.0);
+    GLUquadricObj * lightCyl;
+    lightCyl = gluNewQuadric();
+    gluQuadricDrawStyle(lightCyl, GLU_FILL );
+    gluCylinder(lightCyl,2.0,2.0, 5.0,20,20);
+    gluDeleteQuadric(lightCyl);
+    glPopMatrix();
+    
+
+    // start with transparent shapes?
+    if (transparent)
+    {
+        glEnable(GL_BLEND);
+        glDepthMask(GL_FALSE);
+    }
+    
+    if (yellowFinish)
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, yellowAmbient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, yellowDiffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, yellowSpecular);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+    }
+    else
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, lilaAmbient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lilaDiffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, lilaSpecular);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+
+    }
+    //a B-spline top casing
+    drawTopCasing();
+    
+    //a B-spline side casing
+    GLfloat rotation = 0.0;
+    for(int i=0;i<4;i++)
+    {
+        glPushMatrix();
+        glRotatef(rotation, 0.0,1.0,0.0);
+        drawSideCasing(-90.0, 0.0, -1.0, -0.3);
+        glPopMatrix();
+
+        rotation -= 90.0;
+    }
+
+    if (transparent)
+    {
+        glDisable(GL_BLEND);
+        glDepthMask(GL_TRUE);
+        
+    }
+
+    // base material
     if (greyFinish)
     {
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, greyAmbient);
@@ -624,12 +704,7 @@ void drawDrone(int number)
         
     }
 
-    //set height and orbit
-    glPushMatrix();
-    glTranslatef(0.0, height, 0.0);
-    setOrbit(speed,xORbit[number], zORbit[number]); 
-
-    // torus to hold propeller bars
+    //torus to hold propeller bars
     glPushMatrix();
     glRotatef(90.0, 1.0, 0.0, 0.0);
     glutSolidTorus(1.5,8.0,20,20);
@@ -652,46 +727,64 @@ void drawDrone(int number)
     
     // the spot
     glPushMatrix();
-    glRotatef(90.0, 1.0, 0.0, 0.0);
-    GLUquadricObj * lightCylinder;
-    lightCylinder = gluNewQuadric();
-    gluQuadricDrawStyle(lightCylinder, GLU_FILL );
-    gluCylinder(lightCylinder,4.0,2.5, 5.0,20,20);
-    gluDeleteQuadric(lightCylinder);
+    glRotatef(180.0, 0.0, 1.0, 1.0);
+    glTranslatef(0.0, 0.0, -5.0);
+    GLUquadricObj * cyl;
+    cyl = gluNewQuadric();
+    gluQuadricDrawStyle(cyl, GLU_FILL );
+    gluCylinder(cyl,4.0,2.5, 5.0,20,20);
+    gluDeleteQuadric(cyl);
     glPopMatrix();
 
-    if (yellowFinish)
-    {
-        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, yellowAmbient);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, yellowDiffuse);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, yellowSpecular);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
-    }
-    else
-    {
-        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, lilaAmbient);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lilaDiffuse);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, lilaSpecular);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
-
-    }
+    // start with transparent shapes?
+    // if (transparent)
+    // {
+    //     glDepthMask(GL_FALSE);
+    //     glEnable(GL_BLEND);
+    // }
     
-    //a B-spline side casing
-    GLfloat rotation = 0.0;
-    for(int i=0;i<4;i++)
-    {
-        glPushMatrix();
-        glRotatef(rotation, 0.0,1.0,0.0);
-        drawSideCasing(-90.0, 0.0, -1.0, -0.3);
-        glPopMatrix();
+    // if (yellowFinish)
+    // {
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, yellowAmbient);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, yellowDiffuse);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, yellowSpecular);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+    // }
+    // else
+    // {
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, lilaAmbient);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lilaDiffuse);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, lilaSpecular);
+    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
+    // }
+    
+    //a B-spline top casing
+    // drawTopCasing();
+    
+    // a B-spline side casing
+    // GLfloat rotation = 0.0; //change order to improve transparency?
+    // for(int i=0;i<4;i++)
+    // {
+    //     glPushMatrix();
+    //     glRotatef(rotation, 0.0,1.0,0.0);
+    //     drawSideCasing(-90.0, 0.0, -1.0, -0.3);
+    //     glPopMatrix();
 
-        rotation -= 90.0;
-    }
+    //     rotation -= 90.0;
+    // }
 
-     //a B-spline top casing
-    drawTopCasing();
+    // //a B-spline top casing
+    // drawTopCasing();
+
+    // if (transparent)
+    // {
+    //     glDisable(GL_BLEND);
+    //     glDepthMask(GL_TRUE);
+    //     // glEnable(GL_LIGHTING);
+    // }
 
     glPopMatrix();
+    
     
 
     
@@ -715,19 +808,6 @@ void drawCanvas(void)
         drawDrone(i);
     }
 
-    // GLfloat rotation = 0.0;
-    // for(int i=0;i<4;i++)
-    // {
-    //     glPushMatrix();
-    //     glRotatef(rotation, 0.0,1.0,0.0);
-    //     drawSideCasing(-90.0, 0.0, -1.0, 0.0); // XZY
-    //     glPopMatrix();
-
-    //     rotation -= 90.0;
-    // }
-    
-    // glDepthMask(GL_TRUE);
-    // glDisable(GL_BLEND);
 }
 
 // rotate the propellers
@@ -790,7 +870,7 @@ void keys(unsigned char key, int x, int y)
         // view
         case 'o' : mode='o'; printf("orthographic projection\n"); break;
         case 'p' : mode='p'; printf("symmetric perspective projection\n"); break;
-        case 'f' : mode='f'; printf("general perspective projection\n"); break;
+        case 'u' : mode='f'; printf("general perspective projection\n"); break;
         case 'v' : visualAids=!visualAids; printf("visual assistance\n"); break;
         case 'n' : if (drones<3)drones++;printf("new drone - max number is 3\n"); break;
         //lighting & material choice
@@ -805,6 +885,8 @@ void keys(unsigned char key, int x, int y)
         case 't' : texture=!texture; printf("texture please\n"); break;
         case 'P' : chromeFinish=!chromeFinish; printf("propeller style\n"); break;
         case 'F' : greyFinish=!greyFinish; printf("frame style\n"); break;
+        case 'Q' : yellowFinish=!yellowFinish; printf("case style\n"); break;
+        case 'f' : transparent=!transparent; printf("show inside\n"); break;
         // move objects
         case 'g' : glutTimerFunc(10, rotate, 20); propellersOn=true; printf("activate propellers\n"); break;
         case 'G' : glutTimerFunc(200, fly, 10); printf("fly around\n"); break;
@@ -827,16 +909,6 @@ void winReshapeFcn (GLint newWidth, GLint newHeight)
     glShadeModel( GL_FLAT ); // GL_FLAT or GL_SMOOTH shading
     switch (mode)
     {
-        // case 'o':
-            // if (aspect >= 1.0)
-            // {
-            //     glOrtho(-10*aspect, 10*aspect, -10, 10, near, far);
-            // }
-            // else
-            // {
-            //     glOrtho(-10, 10, -10/aspect, 10/aspect, near, far);
-            // }
-            // break;
         case 'o':
             if (aspect >= 1.0)
             {
@@ -870,7 +942,7 @@ void displayFcn(void)
     // glLightfv(GL_LIGHT0,GL_POSITION,centerLight);
     // glLightfv(GL_LIGHT1,GL_POSITION,leftLight);
     // glLightfv(GL_LIGHT2,GL_POSITION,rightLight);
-        // glLightfv(GL_LIGHT3,GL_POSITION,droneLight);
+    // glLightfv(GL_LIGHT3,GL_POSITION,droneLight);
 
     gluLookAt(x_0,y_0,z_0,    x_ref,y_ref,z_ref,    0.0, 1.0, 0.0);
     glLightfv(GL_LIGHT0,GL_POSITION,centerLight);
