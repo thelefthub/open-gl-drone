@@ -9,7 +9,7 @@
 #include "stb_image.h"
 #define NUMB 2
 #define MAXL 80
-char images[NUMB][MAXL]={"../sun.jpg","../metalPaint.jpg"};
+char images[NUMB][MAXL]={"../paper.jpg","../metalPaint.jpg"};
 static GLuint texName[NUMB];
 /* end use of image lib*/
 
@@ -33,7 +33,7 @@ GLdouble x_0=50.0, y_0=50.0, z_0=50.0;
 GLdouble x_ref=0.0, y_ref=0.0, z_ref=0.0;
 GLdouble near = 1.0, far = 1000.0;
 char mode = 'o';
-bool visualAids = true, texture = true, chromeFinish = true, greyFinish=true, yellowFinish=true, propellersOn=false;
+bool visualAids = true, ctrlPoints = true, texture = true, chromeFinish = true, greyFinish=true, yellowFinish=true, propellersOn=false;
 GLfloat propRotation = 0.0, height = 0.0, speed = 60.0;
 GLint winWidth = 1000, winHeight = 1000, propellers = 4, drones = 1; 
 
@@ -76,9 +76,6 @@ GLfloat greenTrans[] = {0.0,1.0,0.0,0.5};
 GLfloat yellowTrans[] = {1.0, 1.0, 0.0, 0.5};
 
 GLfloat grey[3] = {0.412, 0.412, 0.412};
-
-// double r = 12.0;
-// double clip[2][4] = { { r, 0.0, 0.0, 1.0 }, { -r, 0.0, 0.0, 1.0 } };
 
 GLfloat controlPoints[LCONTROL][WCONTROL][3] = {
     {{-0.5, 0.0, 0.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {0.0, 0.0, 0.0}},
@@ -207,15 +204,15 @@ void drawAxes(void)
 // visual aid: showing light sources
 void lightsPos(void)
 {
-    // glColor3fv(grey);
-    // glBegin(GL_LINES);
-    // glVertex3fv(centerLight);
-    // glVertex3f(0.0,0.0,0.0);
-    // glVertex3fv(leftLight);
-    // glVertex3f(0.0,0.0,0.0);
-    // glVertex3fv(rightLight);
-    // glVertex3f(0.0,0.0,0.0);
-    // glEnd();
+    glColor3fv(grey);
+    glBegin(GL_LINES);
+    glVertex3fv(centerLight);
+    glVertex3f(0.0,0.0,0.0);
+    glVertex3fv(leftLight);
+    glVertex3f(0.0,0.0,0.0);
+    glVertex3fv(rightLight);
+    glVertex3f(0.0,0.0,0.0);
+    glEnd();
 }
 
 void imageBackground(void)
@@ -315,26 +312,57 @@ void drawBezierSurface(void) {
     
 }
 
-// show conrol points
-void showCtrlPoints()
+// helper func: show conrol points for a given surface
+void showCtrlPoints(char surface)
 {
     int i;
     int j;
     glLineWidth(1.2);
-    glPointSize(5.0);
-    glColor3f(1.0, 1.0, 0.0);
-    glBegin(GL_POINTS);
-    for (i = 0; i < LCONTROL; i++)
+    glDisable(GL_LIGHTING);
+
+    
+    switch (surface)
     {
-         for (j = 0; j < WCONTROL; j++)
-         {
-            glVertex3fv(&controlPoints[i][j][0]);
-            // printf("%f \n", controlPoints[i][j][0]);
+    case 'p':
+        glPointSize(2.0);
+        glBegin(GL_POINTS);
+        for (i = 0; i < LCONTROL; i++)
+        {
+            for (j = 0; j < WCONTROL; j++)
+            {
+                glVertex3fv(&controlPoints[i][j][0]);
+            }
 
-         }
+        }
+        glEnd();
+        break;
+    
+    case 's':
+        glPointSize(4.0);
+        glBegin(GL_POINTS);
+        for (i = 0; i < BLCONTROL; i++) {
+            for (j = 0; j < BWCONTROL; j++) {
+                // glVertex3f(controlPoints2[i][j][0], controlPoints2[i][j][1], controlPoints2[i][j][2]);
+                glVertex3fv(&controlPoints2[i][j][0]);
+            }
+        }
+        glEnd();
+        break;
 
+    case 't':
+        glPointSize(4.0);
+        glBegin(GL_POINTS);
+        for (i = 0; i < BLCONTROL; i++) {
+            for (j = 0; j < BWCONTROL; j++) {
+                // glVertex3f(controlPoints2[i][j][0], controlPoints2[i][j][1], controlPoints2[i][j][2]);
+                glVertex3fv(&controlPoints3[i][j][0]);
+            }
+        }
+        glEnd();
+        break;
     }
-    glEnd();
+    glEnable(GL_LIGHTING);
+    
     // glEnable(GL_LINE_STIPPLE);
     // glLineStipple(2, 0x00ff);
     // glBegin(GL_LINE_STRIP);
@@ -342,6 +370,21 @@ void showCtrlPoints()
     //     glVertex3fv(&ctrlpoints[i][0]);
     // glEnd();
     // glDisable(GL_LINE_STIPPLE);
+
+    // if (showPoints) {
+    //     glPointSize(5.0);
+    //     // glDisable(GL_LIGHTING);
+    //     glColor3f(1.0, 1.0, 0.0);
+    //     glBegin(GL_POINTS);
+    //     for (i = 0; i < 4; i++) {
+    //         for (j = 0; j < 4; j++) {
+    //             glVertex3f(controlPoints2[i][j][0], 
+    //                     controlPoints2[i][j][1], controlPoints2[i][j][2]);
+    //         }
+    //     }
+    //     glEnd();
+    //     // glEnable(GL_LIGHTING);
+    // }
 }
 
 void drawPropeller(char pos)
@@ -377,14 +420,14 @@ void drawPropeller(char pos)
     glRotatef(180.0, 0.0, 1.0, 0.0);
     glRotatef(propRotation, 0.0, 0.0, 1.0);
     drawBezierSurface();
-    // showCtrlPoints();
+    if (ctrlPoints) showCtrlPoints('p');
     glPopMatrix();
 
     glPushMatrix();
     glRotatef(-90.0, 1.0, 0.0, 0.0);
     glRotatef(propRotation, 0.0, 0.0, 1.0);
     drawBezierSurface();
-    // showCtrlPoints();
+    if (ctrlPoints) showCtrlPoints('p');
     glPopMatrix();
     
     glPopMatrix();
@@ -403,7 +446,6 @@ void drawFeet(char pos)
         glTranslatef(16, 2, 0.0);
     }
     
-
     glPushMatrix();
     glRotatef(90.0, 1.0, 0.0, 0.0);
     glutSolidSphere(1.0,20,20);
@@ -471,27 +513,41 @@ void drawSideCasing(GLfloat rotation, GLfloat xTrans, GLfloat yTrans, GLfloat zT
     glTranslatef(0.0, 2.0, 0.0); // XZY drawSideCasing(-90.0, 0.0, 2.0, 0.0);
     glTranslatef(xTrans, yTrans, zTrans);
 
+    if (texture)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture (GL_TEXTURE_2D,texName[1]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_R,GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    }
+
     gluBeginSurface(sideNurb);
     gluNurbsSurface(sideNurb, 
                     8, knots, 8, knots,
                     4 * 3, 3, &controlPoints2[0][0][0], 
                     4, 4, GL_MAP2_VERTEX_3);
+    if (texture)
+    {
+    gluNurbsSurface(sideNurb, 
+                    8, knots, 8, knots,
+                    4 * 3, 3, &controlPoints2[0][0][0], 
+                    4, 4, GL_MAP2_TEXTURE_COORD_2);
+    }
     gluEndSurface(sideNurb);
 
-    // if (showPoints) {
-    //     glPointSize(5.0);
-    //     // glDisable(GL_LIGHTING);
-    //     glColor3f(1.0, 1.0, 0.0);
-    //     glBegin(GL_POINTS);
-    //     for (i = 0; i < 4; i++) {
-    //         for (j = 0; j < 4; j++) {
-    //             glVertex3f(controlPoints2[i][j][0], 
-    //                     controlPoints2[i][j][1], controlPoints2[i][j][2]);
-    //         }
-    //     }
-    //     glEnd();
-    //     // glEnable(GL_LIGHTING);
-    // }
+    if (texture)
+    {
+        glDisable(GL_MAP2_TEXTURE_COORD_2);
+        glDisable(GL_TEXTURE_2D);
+
+    }
+
+    if (ctrlPoints) showCtrlPoints('s');
+
     glPopMatrix();
     
 
@@ -500,7 +556,6 @@ void drawSideCasing(GLfloat rotation, GLfloat xTrans, GLfloat yTrans, GLfloat zT
 
 void drawTopCasing(void)
 {
-
     GLfloat knots[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
 
     int i, j;
@@ -509,27 +564,41 @@ void drawTopCasing(void)
     glScalef (7.0, 7.0, 7.0);
     glTranslatef(0.0, 0.7, 0.0);
 
+    if (texture)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture (GL_TEXTURE_2D,texName[0]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    }
+
     gluBeginSurface(topNurb);
     gluNurbsSurface(topNurb, 
                     8, knots, 8, knots,
                     4 * 3, 3, &controlPoints3[0][0][0], 
                     4, 4, GL_MAP2_VERTEX_3);
+    if (texture)
+    {
+    gluNurbsSurface(topNurb, 
+                    8, knots, 8, knots,
+                    4 * 3, 3, &controlPoints3[0][0][0], 
+                    4, 4, GL_MAP2_TEXTURE_COORD_2);
+    }
     gluEndSurface(topNurb);
 
-    // if (showPoints) {
-    //     glPointSize(5.0);
-    //     // glDisable(GL_LIGHTING);
-    //     glColor3f(1.0, 1.0, 0.0);
-    //     glBegin(GL_POINTS);
-    //     for (i = 0; i < 4; i++) {
-    //         for (j = 0; j < 4; j++) {
-    //             glVertex3f(controlPoints2[i][j][0], 
-    //                     controlPoints2[i][j][1], controlPoints2[i][j][2]);
-    //         }
-    //     }
-    //     glEnd();
-    //     // glEnable(GL_LIGHTING);
-    // }
+    if (texture)
+    {
+        glDisable(GL_MAP2_TEXTURE_COORD_2);
+        glDisable(GL_TEXTURE_2D);
+
+    }
+
+    if (ctrlPoints) showCtrlPoints('t');
+    
     glPopMatrix();
     
 
@@ -614,7 +683,6 @@ void drawDrone(int number)
         glPushMatrix();
         glRotatef(rotation, 0.0,1.0,0.0);
         drawSideCasing(-90.0, 0.0, -1.0, -0.3);
-
         glPopMatrix();
 
         rotation -= 90.0;
