@@ -26,14 +26,14 @@ static GLuint texName[NUMB];
 GLfloat xORbit[MAXDRONE] = {-75.50, 75.50, 0.50};
 GLfloat zORbit[MAXDRONE] = { -10.50, 30.50, 10.50};
 
-GLdouble x_0=50.0, y_0=50.0, z_0=50.0;
+GLdouble x_0=70.0, y_0=40.0, z_0=70.0;
 
 // GLdouble x_0=0.0, y_0=20.0, z_0=20.0; 
 GLdouble x_ref=0.0, y_ref=0.0, z_ref=0.0;
 GLdouble near = 1.0, far = 1000.0;
 char mode = 'o';
-bool visualAids = true, ctrlPoints = true, texture = true, chromeFinish = true,
-greyFinish=true, yellowFinish=false, propellersOn=false, transparent = false, floorTex = true, fog=true;
+bool visualAids = true, ctrlPoints = false, texture = true, chromeFinish = true,
+greyFinish=true, yellowFinish=false, propellersOn=false, transparent = false, floorTex = true, fog=false;
 GLfloat propRotation = 0.0, height =7.0, speed = 60.0;
 GLint winWidth = 1000, winHeight = 1000, propellers = 4, drones = 1; 
 
@@ -46,7 +46,7 @@ GLfloat ligthX = 0.0;
 GLfloat ligthY = 0.0;
 GLfloat ligthZ = 0.0;
 GLfloat droneLight[] = {ligthX , ligthY, ligthZ, 1.0};
-GLfloat dir[] = {0.0,-50.0,0.0};
+GLfloat dir[] = {0.0,-10.0,0.0};
 GLfloat ambient[] = {0.2, 0.2, 0.2,1.0};
 GLfloat red[] = {0.9,0.1,0.0,1.0};
 GLfloat greenBlue[] = {0.0,0.7,0.5,1.0};
@@ -120,7 +120,7 @@ void lightsOn(void)
     glLightfv(GL_LIGHT3, GL_AMBIENT, yellow);
     glLightfv(GL_LIGHT3,GL_DIFFUSE,yellow);
     glLightfv(GL_LIGHT3,GL_SPECULAR,yellow);
-    glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, 45.0);
+    glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, 30.0);
     glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, dir);
     glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, 10.0);
     glEnable(GL_LIGHT3);
@@ -215,6 +215,14 @@ void lightsPos(void)
 
 void canvasFloor(void)
 {
+    // Grid to show the spot effect?
+    // glBegin(GL_QUADS);
+    // glVertex3f(-80.0, 0.0, -80.0);
+    // glVertex3f(-80, 0.0, 80.0);
+    // glVertex3f(80.0, 0.0, 80.0);
+    // glVertex3f(80.0, 0.0, -80.0);
+    // glEnd();
+
     glEnable(GL_TEXTURE_2D);
     
     glBindTexture (GL_TEXTURE_2D,texName[2]);
@@ -226,16 +234,20 @@ void canvasFloor(void)
 
     glBegin(GL_QUADS);
     
-    glTexCoord2f(0.0, 0.0);   glVertex3f(-100.0, 0.0, -100.0); //rt
-    glTexCoord2f(1.0, 0.0);   glVertex3f(-100, 0.0, 100.0); //lt
-    glTexCoord2f(1.0, 1.0);   glVertex3f(100.0, 0.0, 100.0);//lb
-    glTexCoord2f(0.0, 1.0);   glVertex3f(100.0, 0.0, -100.0);//rb
+    glTexCoord2f(0.0, 0.0);   glVertex3f(-80.0, 0.0, -80.0); //rt
+    glTexCoord2f(5.0, 0.0);   glVertex3f(-80, 0.0, 80.0); //lt
+    glTexCoord2f(5.0, 5.0);   glVertex3f(80.0, 0.0, 80.0);//lb
+    glTexCoord2f(0.0, 5.0);   glVertex3f(80.0, 0.0, -80.0);//rb
 
     glEnd();
-    
+
     glPopMatrix();
 
     glDisable(GL_TEXTURE_2D);
+
+    
+
+
 
 }
 
@@ -329,6 +341,16 @@ void showCtrlPoints(char surface)
 
         }
         glEnd();
+        glBegin(GL_LINE_STRIP);
+        for (i = 0; i < LCONTROL; i++)
+        {
+            for (j = 0; j < WCONTROL; j++)
+            {
+                glVertex3fv(&controlPoints[i][j][0]);
+            }
+
+        }
+        glEnd();
         break;
     
     case 's':
@@ -337,6 +359,13 @@ void showCtrlPoints(char surface)
         for (i = 0; i < BLCONTROL; i++) {
             for (j = 0; j < BWCONTROL; j++) {
                 // glVertex3f(controlPoints2[i][j][0], controlPoints2[i][j][1], controlPoints2[i][j][2]);
+                glVertex3fv(&controlPoints2[i][j][0]);
+            }
+        }
+        glEnd();
+        glBegin(GL_LINE_STRIP);
+        for (i = 0; i < BLCONTROL; i++) {
+            for (j = 0; j < BWCONTROL; j++) {
                 glVertex3fv(&controlPoints2[i][j][0]);
             }
         }
@@ -353,32 +382,16 @@ void showCtrlPoints(char surface)
             }
         }
         glEnd();
+        glBegin(GL_LINE_STRIP);
+        for (i = 0; i < BLCONTROL; i++) {
+            for (j = 0; j < BWCONTROL; j++) {
+                glVertex3fv(&controlPoints3[i][j][0]);
+            }
+        }
+        glEnd();
         break;
     }
     glEnable(GL_LIGHTING);
-    
-    // glEnable(GL_LINE_STIPPLE);
-    // glLineStipple(2, 0x00ff);
-    // glBegin(GL_LINE_STRIP);
-    // for (i = 0; i < AANTAL; i++)
-    //     glVertex3fv(&ctrlpoints[i][0]);
-    // glEnd();
-    // glDisable(GL_LINE_STIPPLE);
-
-    // if (showPoints) {
-    //     glPointSize(5.0);
-    //     // glDisable(GL_LIGHTING);
-    //     glColor3f(1.0, 1.0, 0.0);
-    //     glBegin(GL_POINTS);
-    //     for (i = 0; i < 4; i++) {
-    //         for (j = 0; j < 4; j++) {
-    //             glVertex3f(controlPoints2[i][j][0], 
-    //                     controlPoints2[i][j][1], controlPoints2[i][j][2]);
-    //         }
-    //     }
-    //     glEnd();
-    //     // glEnable(GL_LIGHTING);
-    // }
 }
 
 void drawPropeller(char pos)
@@ -876,11 +889,12 @@ void keys(unsigned char key, int x, int y)
         // case 'c': z_ref++; break;
         // case 'C': z_ref--; break;
         case 'r': x_0=50.0, y_0=50.0, z_0=50.0; x_ref = 0.0; y_ref = 0.0; z_ref = 0.0; break;
-        // not at runtime, but as main arg?
+        // view
         case 'o' : mode='o'; printf("orthographic projection\n"); break;
         case 'i' : mode='p'; printf("symmetric perspective projection\n"); break;
         case 'p' : mode='f'; printf("general perspective projection\n"); break;
         case 'v' : visualAids=!visualAids; printf("visual assistance\n"); break;
+        case 'l' : ctrlPoints=!ctrlPoints; printf("controlPoints\n"); break;
         case 'n' : if (drones<3)drones++;printf("new drone - max number is 3\n"); break;
         //lighting & material choice
         case 'a' : glEnable(GL_LIGHT0); printf("light 1 on - ambient\n"); break;
