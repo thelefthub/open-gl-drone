@@ -14,7 +14,6 @@ static GLuint texName[NUMB];
 /* end use of image lib*/
 
 #define ESC 27
-#define PLANETS 8
 #define LCONTROL 6
 #define WCONTROL 4
 #define BLCONTROL 4
@@ -33,50 +32,47 @@ GLdouble x_0=50.0, y_0=50.0, z_0=50.0;
 GLdouble x_ref=0.0, y_ref=0.0, z_ref=0.0;
 GLdouble near = 1.0, far = 1000.0;
 char mode = 'o';
-bool visualAids = true, ctrlPoints = true, texture = true, chromeFinish = true, 
-greyFinish=true, yellowFinish=false, propellersOn=false, transparent = false, floorTex = true;
+bool visualAids = true, ctrlPoints = true, texture = true, chromeFinish = true,
+greyFinish=true, yellowFinish=false, propellersOn=false, transparent = false, floorTex = true, fog=true;
 GLfloat propRotation = 0.0, height =7.0, speed = 60.0;
 GLint winWidth = 1000, winHeight = 1000, propellers = 4, drones = 1; 
 
 // colour and light definition
-GLfloat centerLight[] = {0.0 ,90.0, 0.0, 1.0};
-GLfloat leftLight[] = {-40.0 ,00.0, 60.0, 1.0};
-GLfloat rightLight[] = {40.0 , 60.0, -40.0, 1.0};
+GLfloat grey[] = {0.412,0.412,0.412};
+GLfloat centerLight[] = {0.0,90.0,0.0,1.0};
+GLfloat leftLight[] = {-40.0,10.0,60.0,1.0};
+GLfloat rightLight[] = {40.0,60.0,-40.0,1.0};
 GLfloat ligthX = 0.0;
 GLfloat ligthY = 0.0;
 GLfloat ligthZ = 0.0;
 GLfloat droneLight[] = {ligthX , ligthY, ligthZ, 1.0};
 GLfloat dir[] = {0.0,-50.0,0.0};
-GLfloat ambient[] = {0.2, 0.2, 0.2, 1.0};
-GLfloat red[] = {0.9,0.1,0.0, 1.0};
-GLfloat greenBlue[] = {0.0,0.7,0.5, 1.0};
-GLfloat blue[] = {0.0,0.0,1.0, 1.0};
-GLfloat yellow[] = {1.0, 1.0, 0.0, 1.0};
+GLfloat ambient[] = {0.2, 0.2, 0.2,1.0};
+GLfloat red[] = {0.9,0.1,0.0,1.0};
+GLfloat greenBlue[] = {0.0,0.7,0.5,1.0};
+GLfloat blue[] = {0.0,0.0,1.0,1.0};
+GLfloat yellow[] = {1.0,1.0,0.0,1.0};
 GLfloat shine[] = {60.0};
-GLfloat chromeAmbient[] = {0.46, 0.58, 0.35, 1.0};
-GLfloat chromeDiffuse[] = {0.23, 0.29, 0.17, 1.0};
-GLfloat chromeSpecular[] = {0.69, 0.87, 0.52, 1.0};
-GLfloat bronzeAmbient[] = {0.21, 0.13, 0.10, 1.0};
-GLfloat bronzeDiffuse[] = {0.39, 0.27, 0.17, 1.0};
-GLfloat bronzeSpecular[] = {0.71, 0.43, 0.18, 1.0};
-GLfloat greyAmbient[] = {0.22, 0.22, 0.22, 1.0};
-GLfloat greyDiffuse[] = {0.33, 0.33, 0.33, 1.0};
-GLfloat greySpecular[] = {0.11, 0.11, 0.11, 1.0};
-GLfloat whiteAmbient[] = {0.22, 0.22, 0.22, 1.0};
-GLfloat whiteDiffuse[] = {0.33, 0.33, 0.33, 1.0};
-GLfloat whiteSpecular[] = {0.11, 0.11, 0.11, 1.0};
-
+GLfloat chromeAmbient[] = {0.46,0.58,0.35,1.0};
+GLfloat chromeDiffuse[] = {0.23,0.29,0.17,1.0};
+GLfloat chromeSpecular[] = {0.69,0.87,0.52,1.0};
+GLfloat bronzeAmbient[] = {0.21,0.13,0.10,1.0};
+GLfloat bronzeDiffuse[] = {0.39,0.27,0.17,1.0};
+GLfloat bronzeSpecular[] = {0.71,0.43,0.18,1.0};
+GLfloat greyAmbient[] = {0.22,0.22,0.22,1.0};
+GLfloat greyDiffuse[] = {0.33,0.33,0.33,1.0};
+GLfloat greySpecular[] = {0.11,0.11,0.11,1.0};
+GLfloat whiteAmbient[] = {0.22,0.22,0.22,1.0};
+GLfloat whiteDiffuse[] = {0.33,0.33,0.33,1.0};
+GLfloat whiteSpecular[] = {0.11,0.11,0.11,1.0};
 // GLfloat alpha = 1.0;
-GLfloat yellowAmbient[] = {0.65, 0.55, 0.15, 0.95};
-GLfloat yellowDiffuse[] = {0.75, 0.45, 0.15, 0.95};
-GLfloat yellowSpecular[] = {0.85, 0.35, 0.15, 0.95};
-GLfloat lilaAmbient[] = {0.45, 0.15, 0.75, 0.95};
-GLfloat lilaDiffuse[] = {0.55, 0.15, 0.65, 0.95};
-GLfloat lilaSpecular[] = {0.35, 0.15, 0.85, 0.95};
-
-GLfloat redTrans[] = {0.9,0.1,0.0,0.5};
-
-GLfloat grey[3] = {0.412, 0.412, 0.412};
+GLfloat yellowAmbient[] = {0.65,0.55,0.15,0.0};
+GLfloat yellowDiffuse[] = {0.75,0.45,0.15,0.0};
+GLfloat yellowSpecular[] = {0.85,0.35,0.15,0.0};
+GLfloat lilaAmbient[] = {0.45,0.15,0.75,0.0};
+GLfloat lilaDiffuse[] = {0.55,0.15,0.65,0.0};
+GLfloat lilaSpecular[] = {0.35,0.15,0.85,0.0};
+GLfloat fogEffect[] = {0.5,0.5,0.5,1.0};
 
 GLfloat controlPoints[LCONTROL][WCONTROL][3] = {
     {{-0.5, 0.0, 0.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {0.0, 0.0, 0.0}},
@@ -108,8 +104,6 @@ GLfloat controlPoints3[BLCONTROL][BWCONTROL][3] = {
 GLUnurbsObj *sideNurb;
 GLUnurbsObj *topNurb;
 
-
-
 void lightsOn(void)
 {
     glEnable(GL_COLOR_MATERIAL);
@@ -131,18 +125,23 @@ void lightsOn(void)
     glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, 10.0);
     glEnable(GL_LIGHT3);
 
-    // //general light mode
+    // general light mode
     // glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
-
-    // to enable transparency 
+    
+    // fog definition
+    glFogfv(GL_FOG_COLOR, fogEffect);
+    glFogf(GL_FOG_MODE, GL_EXP);
+    glFogf(GL_FOG_DENSITY, 0.01);
+    
+    // enable transparency
+    // glEnable( GL_BLEND ); 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    
 }
 
 
 void init(void)
 {
-
     glClearColor(1.0, 1.0, 1.0, 0.0);
     glEnable(GL_DEPTH_TEST);
 
@@ -187,7 +186,7 @@ void init(void)
 
 // visual aid: xyz-axis on window
 void drawAxes(void)
-{    
+{   
     glColor3fv(grey);
     glBegin(GL_LINES);
     glVertex3f(0.0, 0.0, 0.0);
@@ -197,7 +196,7 @@ void drawAxes(void)
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(0.0, 0.0,40.0);
     glEnd();
-
+    
 }
 
 // visual aid: showing light sources
@@ -262,8 +261,6 @@ void setOrbit (GLfloat orbitSpeed, GLfloat orbitRadiusX,  GLfloat orbitRadiusZ)
         glEnd();
     }
     
-    
-
 }
 
 // draw a Bezier surface with possible texture
@@ -318,8 +315,6 @@ void showCtrlPoints(char surface)
     int j;
     glLineWidth(1.2);
     glDisable(GL_LIGHTING);
-
-    
     switch (surface)
     {
     case 'p':
@@ -675,7 +670,7 @@ void drawDrone(int number)
     {
         glPushMatrix();
         glRotatef(rotation, 0.0,1.0,0.0);
-        drawSideCasing(-90.0, 0.0, -1.0, -0.3);
+        drawSideCasing(-90.0, 0.0, -1.0, -0.3); //change order for depth sorting?
         glPopMatrix();
 
         rotation -= 90.0;
@@ -683,9 +678,8 @@ void drawDrone(int number)
 
     if (transparent)
     {
-        glDisable(GL_BLEND);
         glDepthMask(GL_TRUE);
-        
+        glDisable(GL_BLEND);
     }
 
     // base material
@@ -763,12 +757,12 @@ void drawDrone(int number)
     // drawTopCasing();
     
     // a B-spline side casing
-    // GLfloat rotation = 0.0; //change order to improve transparency?
+    // GLfloat rotation = 0.0;
     // for(int i=0;i<4;i++)
     // {
     //     glPushMatrix();
     //     glRotatef(rotation, 0.0,1.0,0.0);
-    //     drawSideCasing(-90.0, 0.0, -1.0, -0.3);
+    //     drawSideCasing(-90.0, 0.0, -1.0, -0.3); //change order for depth sorting?
     //     glPopMatrix();
 
     //     rotation -= 90.0;
@@ -798,20 +792,31 @@ void drawDrone(int number)
 
 void drawCanvas(void)
 {
+    
     if (visualAids)
     {
         drawAxes();
         lightsPos();
     }
 
+    if (fog)
+    {
+        glEnable(GL_FOG);
+    }
+    
     for(int i=0;i<drones;i++)
     {
         drawDrone(i);
     }
-
+    
     if (floorTex)
     {
         canvasFloor();
+    }
+       
+    if (fog)
+    {
+        glDisable(GL_FOG);
     }
     
 
@@ -822,7 +827,6 @@ void rotate(int delta)
 {
     if (propRotation == 360.0)
     {
-        // propRotation=0.0;
         propRotation=delta;
     }
     else
@@ -840,17 +844,14 @@ void fly(int delta)
     {
         if (speed == 360.0)
         {
-            // propRotation=0.0;
             speed=delta;
         }
         else
         {   
-            printf("flying...  \n");
             speed+=delta;
         } 
     }
     glutTimerFunc(200, fly, 10);     
-    // glutSwapBuffers();
     glutPostRedisplay();
 }
 
@@ -867,34 +868,38 @@ void keys(unsigned char key, int x, int y)
         case 'Y': y_0--; break;
         case 'z': z_0++; break;
         case 'Z': z_0--; break;
-        case 'a': x_ref++; break;
-        case 'A': x_ref--; break;
-        case 'b': y_ref++; break;
-        case 'B': y_ref--; break;
-        case 'c': z_ref++; break;
-        case 'C': z_ref--; break;
+        // not required?
+        // case 'a': x_ref++; break;
+        // case 'A': x_ref--; break;
+        // case 'b': y_ref++; break;
+        // case 'B': y_ref--; break;
+        // case 'c': z_ref++; break;
+        // case 'C': z_ref--; break;
         case 'r': x_0=50.0, y_0=50.0, z_0=50.0; x_ref = 0.0; y_ref = 0.0; z_ref = 0.0; break;
-        // view
+        // not at runtime, but as main arg?
         case 'o' : mode='o'; printf("orthographic projection\n"); break;
-        case 's' : mode='p'; printf("symmetric perspective projection\n"); break;
+        case 'i' : mode='p'; printf("symmetric perspective projection\n"); break;
         case 'p' : mode='f'; printf("general perspective projection\n"); break;
         case 'v' : visualAids=!visualAids; printf("visual assistance\n"); break;
         case 'n' : if (drones<3)drones++;printf("new drone - max number is 3\n"); break;
         //lighting & material choice
-        case 'w' : glEnable(GL_LIGHT0); printf("light 1 on - ambient\n"); break;
-        case 'W' : glDisable(GL_LIGHT0); printf("light 1 off  \n"); break;
-        case 'd' : glEnable(GL_LIGHT1); printf("light 2 on  diffuse\n"); break;
-        case 'D' : glDisable(GL_LIGHT1); printf("light 2 off  \n"); break;
-        case 'm' : glEnable(GL_LIGHT2); printf("light 3 on  specular\n"); break;
-        case 'M' : glDisable(GL_LIGHT2); printf("light 3 off  \n"); break;
-        case 'l' : glEnable(GL_LIGHT3); printf("light 4 on spot\n"); break;
-        case 'L' : glDisable(GL_LIGHT3); printf("light 4 off  \n"); break;
-        case 't' : texture=!texture; printf("texture please\n"); break;
+        case 'a' : glEnable(GL_LIGHT0); printf("light 1 on - ambient\n"); break;
+        case 'A' : glDisable(GL_LIGHT0); printf("light 1 off  \n"); break;
+        case 'b' : glEnable(GL_LIGHT1); printf("light 2 on  diffuse\n"); break;
+        case 'B' : glDisable(GL_LIGHT1); printf("light 2 off  \n"); break;
+        case 'c' : glEnable(GL_LIGHT2); printf("light 3 on  specular\n"); break;
+        case 'C' : glDisable(GL_LIGHT2); printf("light 3 off  \n"); break;
+        case 'd' : glEnable(GL_LIGHT3); printf("light 4 on spot\n"); break;
+        case 'D' : glDisable(GL_LIGHT3); printf("light 4 off  \n"); break;
+        case 't' : texture=!texture; printf("texture change\n"); break;
         case 'P' : chromeFinish=!chromeFinish; printf("propeller style\n"); break;
         case 'F' : greyFinish=!greyFinish; printf("frame style\n"); break;
         case 'Q' : yellowFinish=!yellowFinish; printf("case style\n"); break;
         case 'f' : transparent=!transparent; printf("show inside\n"); break;
         case 'u' : floorTex=!floorTex; printf("show floor\n"); break;
+        case 'm' : fog=!fog; printf("fog change\n"); break;
+        case 's':  glShadeModel(GL_FLAT);printf("flat\n");  break;
+        case 'S':  glShadeModel(GL_SMOOTH);printf("smooth\n");break;
         // move objects
         case 'g' : glutTimerFunc(10, rotate, 20); propellersOn=true; printf("activate propellers\n"); break;
         case 'G' : glutTimerFunc(200, fly, 10); printf("fly around\n"); break;
@@ -914,7 +919,8 @@ void winReshapeFcn (GLint newWidth, GLint newHeight)
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glShadeModel( GL_FLAT ); // GL_FLAT or GL_SMOOTH shading
+    glShadeModel( GL_FLAT );
+    
     switch (mode)
     {
         case 'o':
@@ -969,7 +975,6 @@ void displayFcn(void)
     glutSwapBuffers();
 
     glFlush();
-    // glDisable(GL_LIGHTING);//show initial color
     
 }
 
