@@ -7,9 +7,9 @@
 /* use of image lib*/
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#define NUMB 2
+#define NUMB 3
 #define MAXL 80
-char images[NUMB][MAXL]={"../paper.jpg","../metalPaint.jpg"};
+char images[NUMB][MAXL]={"../paper.jpg","../metalPaint.jpg", "../asphalt.jpg"};
 static GLuint texName[NUMB];
 /* end use of image lib*/
 
@@ -21,7 +21,7 @@ static GLuint texName[NUMB];
 #define BWCONTROL 4
 #define MAXPROP 6
 #define MAXDRONE 3
-#define MAXHEIGHT 5
+#define MAXHEIGHT 10
 
 // some random orbit data
 GLfloat xORbit[MAXDRONE] = {-75.50, 75.50, 0.50};
@@ -33,8 +33,9 @@ GLdouble x_0=50.0, y_0=50.0, z_0=50.0;
 GLdouble x_ref=0.0, y_ref=0.0, z_ref=0.0;
 GLdouble near = 1.0, far = 1000.0;
 char mode = 'o';
-bool visualAids = true, ctrlPoints = true, texture = false, chromeFinish = true, greyFinish=true, yellowFinish=false, propellersOn=false, transparent = false;
-GLfloat propRotation = 0.0, height = 0.0, speed = 60.0;
+bool visualAids = true, ctrlPoints = true, texture = true, chromeFinish = true, 
+greyFinish=true, yellowFinish=false, propellersOn=false, transparent = false, floorTex = true;
+GLfloat propRotation = 0.0, height =7.0, speed = 60.0;
 GLint winWidth = 1000, winHeight = 1000, propellers = 4, drones = 1; 
 
 // colour and light definition
@@ -213,23 +214,23 @@ void lightsPos(void)
     glEnd();
 }
 
-void imageBackground(void)
+void canvasFloor(void)
 {
     glEnable(GL_TEXTURE_2D);
     
-    glBindTexture (GL_TEXTURE_2D,texName[1]);
+    glBindTexture (GL_TEXTURE_2D,texName[2]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     
     glPushMatrix();
 
     glBegin(GL_QUADS);
     
-    glTexCoord2f(0.0, 0.0);   glVertex3f(20.0, 20.0, -15.0);
-    glTexCoord2f(1.0, 0.0);   glVertex3f(-20, 20.0, -15.0);
-    glTexCoord2f(1.0, 1.0);   glVertex3f(-20.0, -50.0, -15.0);
-    glTexCoord2f(0.0, 1.0);   glVertex3f(20.0, -50.0, -15.0);
+    glTexCoord2f(0.0, 0.0);   glVertex3f(-100.0, 0.0, -100.0); //rt
+    glTexCoord2f(1.0, 0.0);   glVertex3f(-100, 0.0, 100.0); //lt
+    glTexCoord2f(1.0, 1.0);   glVertex3f(100.0, 0.0, 100.0);//lb
+    glTexCoord2f(0.0, 1.0);   glVertex3f(100.0, 0.0, -100.0);//rb
 
     glEnd();
     
@@ -736,7 +737,7 @@ void drawDrone(int number)
     gluDeleteQuadric(cyl);
     glPopMatrix();
 
-    // start with transparent shapes?
+    // end with transparent shapes?
     // if (transparent)
     // {
     //     glDepthMask(GL_FALSE);
@@ -808,6 +809,12 @@ void drawCanvas(void)
         drawDrone(i);
     }
 
+    if (floorTex)
+    {
+        canvasFloor();
+    }
+    
+
 }
 
 // rotate the propellers
@@ -829,7 +836,7 @@ void rotate(int delta)
 // fly a drone in orbit
 void fly(int delta)
 {
-    if (height>0 && propellersOn)
+    if (height>7 && propellersOn)
     {
         if (speed == 360.0)
         {
@@ -869,8 +876,8 @@ void keys(unsigned char key, int x, int y)
         case 'r': x_0=50.0, y_0=50.0, z_0=50.0; x_ref = 0.0; y_ref = 0.0; z_ref = 0.0; break;
         // view
         case 'o' : mode='o'; printf("orthographic projection\n"); break;
-        case 'p' : mode='p'; printf("symmetric perspective projection\n"); break;
-        case 'u' : mode='f'; printf("general perspective projection\n"); break;
+        case 's' : mode='p'; printf("symmetric perspective projection\n"); break;
+        case 'p' : mode='f'; printf("general perspective projection\n"); break;
         case 'v' : visualAids=!visualAids; printf("visual assistance\n"); break;
         case 'n' : if (drones<3)drones++;printf("new drone - max number is 3\n"); break;
         //lighting & material choice
@@ -878,8 +885,8 @@ void keys(unsigned char key, int x, int y)
         case 'W' : glDisable(GL_LIGHT0); printf("light 1 off  \n"); break;
         case 'd' : glEnable(GL_LIGHT1); printf("light 2 on  diffuse\n"); break;
         case 'D' : glDisable(GL_LIGHT1); printf("light 2 off  \n"); break;
-        case 's' : glEnable(GL_LIGHT2); printf("light 3 on  specular\n"); break;
-        case 'S' : glDisable(GL_LIGHT2); printf("light 3 off  \n"); break;
+        case 'm' : glEnable(GL_LIGHT2); printf("light 3 on  specular\n"); break;
+        case 'M' : glDisable(GL_LIGHT2); printf("light 3 off  \n"); break;
         case 'l' : glEnable(GL_LIGHT3); printf("light 4 on spot\n"); break;
         case 'L' : glDisable(GL_LIGHT3); printf("light 4 off  \n"); break;
         case 't' : texture=!texture; printf("texture please\n"); break;
@@ -887,10 +894,11 @@ void keys(unsigned char key, int x, int y)
         case 'F' : greyFinish=!greyFinish; printf("frame style\n"); break;
         case 'Q' : yellowFinish=!yellowFinish; printf("case style\n"); break;
         case 'f' : transparent=!transparent; printf("show inside\n"); break;
+        case 'u' : floorTex=!floorTex; printf("show floor\n"); break;
         // move objects
         case 'g' : glutTimerFunc(10, rotate, 20); propellersOn=true; printf("activate propellers\n"); break;
         case 'G' : glutTimerFunc(200, fly, 10); printf("fly around\n"); break;
-        case 'h' : if (height>0 ) height--; printf("go down\n"); break;
+        case 'h' : if (height>7 ) height--; printf("go down\n"); break;
         case 'H' : if (height<MAXHEIGHT)height++; printf("go up until max height\n"); break;
 
         case ESC: exit(0); break;
@@ -955,7 +963,6 @@ void displayFcn(void)
 
     
     drawCanvas();
-    // imageBackground();
     // glLightfv(GL_LIGHT3,GL_POSITION,droneLight);
     
     //repeat timerfunct and swap buffers in display?
