@@ -838,12 +838,12 @@ void keys(unsigned char key, int x, int y)
         // case 'B': y_ref--; break;
         // case 'c': z_ref++; break;
         // case 'C': z_ref--; break;
-        case 'r': x_0=70.0, y_0=30.0, z_0=70.0; x_ref = 0.0; y_ref = 0.0; z_ref = 0.0; break;
+        // case 'r': x_0=70.0, y_0=30.0, z_0=70.0; x_ref = 0.0; y_ref = 0.0; z_ref = 0.0; break;
         // view
         // required to change mode at runtime?
-        case 'o' : mode='o'; printf("orthographic projection\n"); break;
-        case 'p' : mode='p'; printf("symmetric perspective projection\n"); break;
-        case 'i' : mode='f'; printf("general perspective projection\n"); break;
+        // case 'o' : mode='o'; printf("orthographic projection\n"); break;
+        // case 'p' : mode='p'; printf("symmetric perspective projection\n"); break;
+        // case 'i' : mode='f'; printf("general perspective projection\n"); break;
         case 'j' : visualAids=!visualAids; printf("visual assistance\n"); break;
         case 'k' : ctrlPoints=!ctrlPoints; printf("controlPoints and lines\n"); break;
         case 'n' : if (drones<3)drones++;printf("new drone - max number is 3\n"); break;
@@ -869,8 +869,8 @@ void keys(unsigned char key, int x, int y)
         case 'E': if (shine[0]>5)shine[0]=shine[0]-5; ;printf("shine: %f\n", shine[0]); break;
         case 'v': if (cutOff<90)cutOff=cutOff+5; ;printf("cutOff: %f\n",cutOff ); break;
         case 'V': if (cutOff>5)cutOff=cutOff-5; ;printf("cutOff: %f\n", cutOff); break;
-        case 'w': if (expo<128)expo=expo+5; ;printf("cutOff: %f\n",cutOff ); break;
-        case 'W': if (expo>5)expo=expo-5; ;printf("cutOff: %f\n", cutOff); break;
+        case 'w': if (expo<128)expo=expo+5; ;printf("cutOff: %f\n",expo ); break;
+        case 'W': if (expo>5)expo=expo-5; ;printf("cutOff: %f\n", expo); break;
         // move objects
         case 'g' : glutTimerFunc(10, rotate, 20); propellersOn=true; printf("activate propellers\n"); break;
         case 'G' : glutTimerFunc(200, fly, 10); printf("fly around\n"); break;
@@ -931,7 +931,6 @@ void displayFcn(void)
         case 'o': x_0=70.0, y_0=40.0, z_0=70.0;break;
         case 'p': x_0=5.0, y_0=55.0, z_0=210.0;break;
         case 'f': x_0=0.0, y_0=55.0, z_0=120.0;break;
-
     }
 	
     // set camera
