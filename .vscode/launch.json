@@ -9,10 +9,9 @@
       "type": "cppdbg",
       "request": "launch",
       // "program": "${fileDirname}/${fileBasenameNoExtension}",
-      "program": "/home/piet/Projects/kul/opengl/open-gl-drone/build/open_gl_drone",
       "args": ["p", "3"],
       "stopAtEntry": false,
-      "cwd": "${workspaceFolder}", //todo: optimize for image lib use
+      "cwd": "${workspaceFolder}",
       "environment": [],
       "externalConsole": false,
       "MIMode": "gdb",
