@@ -925,7 +925,7 @@ void displayFcn(void)
     glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, cutOff);
     glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, expo);
 
-    //optimal start cam for a given perspective
+    //optimal base cam for a given perspective
     switch (mode)
     {
         case 'o': x_0=70.0, y_0=40.0, z_0=70.0;break;
@@ -958,26 +958,28 @@ void displayFcn(void)
 int main(int argc, char * argv[]) {
     if ( argc > 1 )
     {
+        // mode argument
+        mode = argv[1][0];
         // propeller argument: should be even
-        char *arg = argv[1];
-        propellers = atoi(arg);
-        if (propellers % 2 != 0)
-        {
-            printf("Propellers should be an even number, %d is not even...\n",propellers);
-            exit(0);
-        }
-        else if (propellers > MAXPROP)
-        {
-            printf("The maximum number of propellers is 6, %d is bigger...\n",propellers);
-            exit(0);
-        }
-         
-        
         if ( argc > 2 )
-                // mode argument
-                mode = argv[2][0];
+        {
+            char *arg = argv[2];
+
+            propellers = atoi(arg);
+            if (propellers % 2 != 0)
+            {
+                printf("Propellers should be an even number, %d is not even...\n",propellers);
+                exit(0);
+            }
+            else if (propellers > MAXPROP)
+            {
+                printf("The maximum number of propellers is 6, %d is bigger...\n",propellers);
+                exit(0);
+            }
+
+        }
     }
-    printf("  near %lf  far %lf mode %c\n", near, far, mode);
+    printf("  near %lf  far %lf mode %c propellers %d\n", near, far, mode, propellers);
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE|GLUT_DEPTH|GLUT_RGBA);
     glutInitWindowSize(winWidth,winHeight);
