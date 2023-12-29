@@ -9,7 +9,7 @@
 #include "stb_image.h"
 #define NUMB 3
 #define MAXL 80
-char images[NUMB][MAXL]={"../paper.jpg","../metalPaint.jpg", "../asphalt.jpg"};
+char images[NUMB][MAXL]={"../rough.jpg","../metalPaint.jpg", "../asphalt.jpg"};
 static GLuint texName[NUMB];
 /* end use of image lib*/
 
@@ -23,23 +23,22 @@ static GLuint texName[NUMB];
 #define MAXHEIGHT 10
 
 // some random orbit data
-GLfloat xORbit[MAXDRONE] = {-75.50, 75.50, 0.50};
-GLfloat zORbit[MAXDRONE] = { -10.50, 30.50, 10.50};
+GLfloat xORbit[MAXDRONE] = {-80.0, 80.0, 80.0};
+GLfloat zORbit[MAXDRONE] = { -40.50, 42.50, -40.50};
 
 GLdouble x_0=70.0, y_0=40.0, z_0=70.0;
 
-// GLdouble x_0=0.0, y_0=20.0, z_0=20.0; 
 GLdouble x_ref=0.0, y_ref=0.0, z_ref=0.0;
 GLdouble near = 1.0, far = 1000.0;
 char mode = 'o';
-bool visualAids = true, ctrlPoints = false, texture = true, chromeFinish = true,
-greyFinish=true, yellowFinish=false, propellersOn=false, transparent = false, floorTex = true, fog=false;
+bool visualAids = false, ctrlPoints = false, texture = true, chromeFinish = true,
+greyFinish=true, yellowFinish=false, propellersOn=false, transparent = false, floorTex = true, fog=true;
 GLfloat propRotation = 0.0, height =7.0, speed = 60.0;
-GLint winWidth = 1000, winHeight = 1000, propellers = 4, drones = 1; 
+GLint winWidth = 1500, winHeight = 1000, propellers = 4, drones = 1; 
 
 // colour and light definition
 GLfloat grey[] = {0.412,0.412,0.412};
-GLfloat centerLight[] = {0.0,90.0,0.0,1.0};
+GLfloat centerLight[] = {-70.0,30.0,-70.0,1.0};
 GLfloat leftLight[] = {-40.0,10.0,60.0,1.0};
 GLfloat rightLight[] = {40.0,60.0,-40.0,1.0};
 GLfloat ligthX = 0.0;
@@ -52,7 +51,7 @@ GLfloat red[] = {0.9,0.1,0.0,1.0};
 GLfloat greenBlue[] = {0.0,0.7,0.5,1.0};
 GLfloat blue[] = {0.0,0.0,1.0,1.0};
 GLfloat yellow[] = {1.0,1.0,0.0,1.0};
-GLfloat shine[] = {60.0};
+GLfloat shine[] = {10.0};
 GLfloat chromeAmbient[] = {0.46,0.58,0.35,1.0};
 GLfloat chromeDiffuse[] = {0.23,0.29,0.17,1.0};
 GLfloat chromeSpecular[] = {0.69,0.87,0.52,1.0};
@@ -65,10 +64,11 @@ GLfloat greySpecular[] = {0.11,0.11,0.11,1.0};
 GLfloat whiteAmbient[] = {0.22,0.22,0.22,1.0};
 GLfloat whiteDiffuse[] = {0.33,0.33,0.33,1.0};
 GLfloat whiteSpecular[] = {0.11,0.11,0.11,1.0};
-// GLfloat alpha = 1.0;
 GLfloat yellowAmbient[] = {0.65,0.55,0.15,0.0};
 GLfloat yellowDiffuse[] = {0.75,0.45,0.15,0.0};
 GLfloat yellowSpecular[] = {0.85,0.35,0.15,0.0};
+GLfloat cutOff = 20.0;
+GLfloat expo = 10.0;
 GLfloat lilaAmbient[] = {0.45,0.15,0.75,0.0};
 GLfloat lilaDiffuse[] = {0.55,0.15,0.65,0.0};
 GLfloat lilaSpecular[] = {0.35,0.15,0.85,0.0};
@@ -117,9 +117,9 @@ void lightsOn(void)
     glLightfv(GL_LIGHT3, GL_AMBIENT, yellow);
     glLightfv(GL_LIGHT3,GL_DIFFUSE,yellow);
     glLightfv(GL_LIGHT3,GL_SPECULAR,yellow);
-    glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, 30.0);
+    // glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, cutOff);
     glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, dir);
-    glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, 10.0);
+    // glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, expo);
     glEnable(GL_LIGHT3);
 
     // general light mode
@@ -184,7 +184,7 @@ void init(void)
 // visual aid: xyz-axis on window
 void drawAxes(void)
 {   
-    glColor3fv(grey);
+    // glColor3fv(grey);
     glBegin(GL_LINES);
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(40.0, 0.0, 0.0);
@@ -199,7 +199,7 @@ void drawAxes(void)
 // visual aid: showing light sources
 void lightsPos(void)
 {
-    glColor3fv(grey);
+    // glColor3fv(grey);
     glBegin(GL_LINES);
     glVertex3fv(centerLight);
     glVertex3f(0.0,0.0,0.0);
@@ -258,7 +258,7 @@ void setOrbit (GLfloat orbitSpeed, GLfloat orbitRadiusX,  GLfloat orbitRadiusZ)
     
 }
 
-// draw a Bezier surface with possible texture
+// draw a Bezier surface with possible texture (i.e. a propeller)
 void drawBezierSurface(void) {
 
     //define normal to enable shine?
@@ -303,7 +303,7 @@ void drawBezierSurface(void) {
     
 }
 
-// helper func: show conrol points for a given surface
+// helper func: show conrol points and lines for a given surface
 void showCtrlPoints(char surface)
 {
     int i;
@@ -377,6 +377,7 @@ void showCtrlPoints(char surface)
     glEnable(GL_LIGHTING);
 }
 
+// draw a propeller at a given position (left or right)
 void drawPropeller(char pos)
 {
     glPushMatrix();
@@ -423,6 +424,7 @@ void drawPropeller(char pos)
     
 }
 
+// draw the feet of the drone at a given position (left or right)
 void drawFeet(char pos)
 {
     glPushMatrix();
@@ -459,11 +461,10 @@ void drawFeet(char pos)
 
 }
 
-// one bar using 2 propellers
+// draw one bar using 2 propellers
 void drawPropBar(void)
 {
     glPushMatrix();
-    // glTranslatef(-2, 2, 0.0);
     glScalef(35.0, 0.5, 1.0);
     glutSolidCube(2.0);
     glPopMatrix();
@@ -489,6 +490,7 @@ void drawPropBar(void)
     drawFeet('r');
 }
 
+// draw a single side casing using a B-spline
 void drawSideCasing(GLfloat rotation, GLfloat xTrans, GLfloat yTrans, GLfloat zTrans)
 {
     GLfloat knots[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
@@ -498,7 +500,7 @@ void drawSideCasing(GLfloat rotation, GLfloat xTrans, GLfloat yTrans, GLfloat zT
     glPushMatrix();
     glScalef (7.0, 7.0, 7.0);
     glRotatef(rotation, 1.0,0.0,0.0);
-    glTranslatef(0.0, 2.0, 0.0); // XZY drawSideCasing(-90.0, 0.0, 2.0, 0.0);
+    glTranslatef(0.0, 2.0, 0.0);
     glTranslatef(xTrans, yTrans, zTrans);
 
     if (texture)
@@ -540,7 +542,7 @@ void drawSideCasing(GLfloat rotation, GLfloat xTrans, GLfloat yTrans, GLfloat zT
 
 
 }
-
+// draw the casing using a B-spline
 void drawTopCasing(void)
 {
     GLfloat knots[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
@@ -562,11 +564,6 @@ void drawTopCasing(void)
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
         glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     }
-
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, lilaAmbient);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, lilaDiffuse);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, lilaSpecular);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
 
     gluBeginSurface(topNurb);
     gluNurbsSurface(topNurb, 
@@ -592,37 +589,18 @@ void drawTopCasing(void)
     if (ctrlPoints) showCtrlPoints('t');
     
     glPopMatrix();
-    
-
-
 }
 
 // generate a single drone
 void drawDrone(int number)
 {
     
-    // if (greyFinish)
-    // {
-    //     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, greyAmbient);
-    //     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, greyDiffuse);
-    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, greySpecular);
-    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
-    // }
-    // else
-    // {
-    //     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, whiteAmbient);
-    //     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, whiteDiffuse);
-    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, whiteSpecular);
-    //     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
-        
-    // }
-    
-
     //set height and orbit
     glPushMatrix();
     glTranslatef(0.0, height, 0.0);
     setOrbit(speed,xORbit[number], zORbit[number]);
 
+    // the inner part of the spot
     glPushMatrix();
     glRotatef(180.0, 0.0, 1.0, 1.0);
     glTranslatef(0.0, 0.0, -5.0);
@@ -634,7 +612,7 @@ void drawDrone(int number)
     glPopMatrix();
     
 
-    // start with transparent shapes?
+    // start with transparent shapes to have the nicest transparency effect
     if (transparent)
     {
         glEnable(GL_BLEND);
@@ -656,10 +634,10 @@ void drawDrone(int number)
         glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
 
     }
-    //a B-spline top casing
+    
     drawTopCasing();
     
-    //a B-spline side casing
+    //4 side casings
     GLfloat rotation = 0.0;
     for(int i=0;i<4;i++)
     {
@@ -708,7 +686,6 @@ void drawDrone(int number)
 
         glPushMatrix();
         drawPropBar();
-        // glTranslatef(-2, 2, 0.0);
         glRotatef(angle, 0.0, 1.0, 0.0);
         drawPropBar();
         glPopMatrix();
@@ -726,7 +703,7 @@ void drawDrone(int number)
     gluDeleteQuadric(cyl);
     glPopMatrix();
 
-    // end with transparent shapes?
+    // ending with transparent shapes has poorer transparency effect?
     // if (transparent)
     // {
     //     glDepthMask(GL_FALSE);
@@ -774,24 +751,17 @@ void drawDrone(int number)
     // }
 
     glPopMatrix();
-    
-    
-
-    
-
-    
-
 }
 
 
 
 void drawCanvas(void)
 {
-    
     if (visualAids)
     {
         drawAxes();
         lightsPos();
+        
     }
 
     if (fog)
@@ -808,7 +778,6 @@ void drawCanvas(void)
     {
         canvasFloor();
     }
-       
     if (fog)
     {
         glDisable(GL_FOG);
@@ -833,9 +802,10 @@ void rotate(int delta)
 }
 
 // fly a drone in orbit
+// Flying requires being airborn, working propellers and max number of drones on the canvas
 void fly(int delta)
 {
-    if (height>7 && propellersOn)
+    if (height>7 && propellersOn && drones<3) 
     {
         if (speed == 360.0)
         {
@@ -855,11 +825,9 @@ void keys(unsigned char key, int x, int y)
     switch (key)
     {
         //move camera
-        // case 'x': x_0++; break;
-        case 'x': x_0=0.0, y_0=10.0, z_0=20.0; break; //cf. side view!
+        case 'x': x_0++; break;
         case 'X': x_0--; break;
-        // case 'y': y_0++; break;
-        case 'y': x_0=0.5, y_0=70.0, z_0=0.5; break; //cf. top view!
+        case 'y': y_0++; break;
         case 'Y': y_0--; break;
         case 'z': z_0++; break;
         case 'Z': z_0--; break;
@@ -870,15 +838,16 @@ void keys(unsigned char key, int x, int y)
         // case 'B': y_ref--; break;
         // case 'c': z_ref++; break;
         // case 'C': z_ref--; break;
-        case 'r': x_0=50.0, y_0=50.0, z_0=50.0; x_ref = 0.0; y_ref = 0.0; z_ref = 0.0; break;
+        case 'r': x_0=70.0, y_0=30.0, z_0=70.0; x_ref = 0.0; y_ref = 0.0; z_ref = 0.0; break;
         // view
+        // required to change mode at runtime?
         case 'o' : mode='o'; printf("orthographic projection\n"); break;
-        case 'i' : mode='p'; printf("symmetric perspective projection\n"); break;
-        case 'p' : mode='f'; printf("general perspective projection\n"); break;
-        case 'v' : visualAids=!visualAids; printf("visual assistance\n"); break;
-        case 'l' : ctrlPoints=!ctrlPoints; printf("controlPoints\n"); break;
+        case 'p' : mode='p'; printf("symmetric perspective projection\n"); break;
+        case 'i' : mode='f'; printf("general perspective projection\n"); break;
+        case 'j' : visualAids=!visualAids; printf("visual assistance\n"); break;
+        case 'k' : ctrlPoints=!ctrlPoints; printf("controlPoints and lines\n"); break;
         case 'n' : if (drones<3)drones++;printf("new drone - max number is 3\n"); break;
-        //lighting & material choice
+        //lighting & material choices
         case 'a' : glEnable(GL_LIGHT0); printf("light 1 on - ambient\n"); break;
         case 'A' : glDisable(GL_LIGHT0); printf("light 1 off  \n"); break;
         case 'b' : glEnable(GL_LIGHT1); printf("light 2 on  diffuse\n"); break;
@@ -896,11 +865,17 @@ void keys(unsigned char key, int x, int y)
         case 'm' : fog=!fog; printf("fog change\n"); break;
         case 's':  glShadeModel(GL_FLAT);printf("flat\n");  break;
         case 'S':  glShadeModel(GL_SMOOTH);printf("smooth\n");break;
+        case 'e': if (shine[0]<128)shine[0]=shine[0]+5; ;printf("shine: %f\n",shine[0] ); break;
+        case 'E': if (shine[0]>5)shine[0]=shine[0]-5; ;printf("shine: %f\n", shine[0]); break;
+        case 'v': if (cutOff<90)cutOff=cutOff+5; ;printf("cutOff: %f\n",cutOff ); break;
+        case 'V': if (cutOff>5)cutOff=cutOff-5; ;printf("cutOff: %f\n", cutOff); break;
+        case 'w': if (expo<128)expo=expo+5; ;printf("cutOff: %f\n",cutOff ); break;
+        case 'W': if (expo>5)expo=expo-5; ;printf("cutOff: %f\n", cutOff); break;
         // move objects
         case 'g' : glutTimerFunc(10, rotate, 20); propellersOn=true; printf("activate propellers\n"); break;
         case 'G' : glutTimerFunc(200, fly, 10); printf("fly around\n"); break;
-        case 'h' : if (height>7 ) height--; printf("go down\n"); break;
-        case 'H' : if (height<MAXHEIGHT)height++; printf("go up until max height\n"); break;
+        case 'h' : if (height>7 && propellersOn) height--; printf("go down\n"); break;
+        case 'H' : if (height<MAXHEIGHT && propellersOn)height++; printf("go up until max height\n"); break;
 
         case ESC: exit(0); break;
     }
@@ -945,16 +920,24 @@ void winReshapeFcn (GLint newWidth, GLint newHeight)
 void displayFcn(void)
 {
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+    // modify spot params;
+    glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, cutOff);
+    glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, expo);
+
+    //optimal start cam for a given perspective
+    switch (mode)
+    {
+        case 'o': x_0=70.0, y_0=40.0, z_0=70.0;break;
+        case 'p': x_0=5.0, y_0=55.0, z_0=210.0;break;
+        case 'f': x_0=0.0, y_0=55.0, z_0=120.0;break;
+
+    }
 	
     // set camera
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    // glLightfv(GL_LIGHT0,GL_POSITION,centerLight);
-    // glLightfv(GL_LIGHT1,GL_POSITION,leftLight);
-    // glLightfv(GL_LIGHT2,GL_POSITION,rightLight);
-    // glLightfv(GL_LIGHT3,GL_POSITION,droneLight);
-
-    gluLookAt(x_0,y_0,z_0,    x_ref,y_ref,z_ref,    0.0, 1.0, 0.0);
+    gluLookAt(x_0,y_0,z_0,x_ref,y_ref,z_ref,    0.0, 1.0, 0.0);
     glLightfv(GL_LIGHT0,GL_POSITION,centerLight);
     glLightfv(GL_LIGHT1,GL_POSITION,leftLight);
     glLightfv(GL_LIGHT2,GL_POSITION,rightLight);
@@ -963,9 +946,7 @@ void displayFcn(void)
     glEnable(GL_NORMALIZE);
     glEnable(GL_LIGHTING);
 
-    
     drawCanvas();
-    // glLightfv(GL_LIGHT3,GL_POSITION,droneLight);
     
     //repeat timerfunct and swap buffers in display?
     glutSwapBuffers();
