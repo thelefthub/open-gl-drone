@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
-// #include <string.h>
 #include <stdlib.h>
 /* use of image lib*/
 #define STB_IMAGE_IMPLEMENTATION
@@ -37,7 +36,7 @@ GLfloat propRotation = 0.0, height =7.0, speed = 60.0;
 GLint winWidth = 1500, winHeight = 1000, propellers = 4, drones = 1; 
 
 // colour and light definition
-GLfloat grey[] = {0.412,0.412,0.412};
+// GLfloat grey[] = {0.412,0.412,0.412};
 GLfloat centerLight[] = {-70.0,30.0,-70.0,1.0};
 GLfloat leftLight[] = {-40.0,10.0,60.0,1.0};
 GLfloat rightLight[] = {40.0,60.0,-40.0,1.0};
@@ -594,7 +593,6 @@ void drawTopCasing(void)
 // generate a single drone
 void drawDrone(int number)
 {
-    
     //set height and orbit
     glPushMatrix();
     glTranslatef(0.0, height, 0.0);
@@ -611,7 +609,6 @@ void drawDrone(int number)
     gluDeleteQuadric(lightCyl);
     glPopMatrix();
     
-
     // start with transparent shapes to have the nicest transparency effect
     if (transparent)
     {
