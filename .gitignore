@@ -73,7 +73,7 @@ _deps
 *-prefix/
 
 ### VisualStudioCode ###
-.vscode/
+**/.vscode/
 
 # Local History for Visual Studio Code
 .history/
