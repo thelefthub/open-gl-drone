@@ -74,6 +74,7 @@ GLfloat lilaDiffuse[] = {0.55,0.15,0.65,0.0};
 GLfloat lilaSpecular[] = {0.35,0.15,0.85,0.0};
 GLfloat fogEffect[] = {0.5,0.5,0.5,1.0};
 
+// surfaces definition
 GLfloat controlPoints[LCONTROL][WCONTROL][3] = {
     {{-0.5, 0.0, 0.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {0.0, 0.0, 0.0}},
     {{-1.5, 2.0, 0.0}, {-0.5, 2.0, 1.0}, {0.5, 2.0, 1.0}, {1.0, 2.0, 0.0}},
@@ -91,10 +92,6 @@ GLfloat controlPoints2[BLCONTROL][BWCONTROL][3] = {
 };
 
 GLfloat controlPoints3[BLCONTROL][BWCONTROL][3] = {
-    // {{-1.0, 0.0, 1.0}, {-0.5, 0.5, 1.0}, {0.5, 0.5, 1.0}, {1.0, 0.0, 1.0}},
-    // {{-1.0, 0.5, 0.0}, {-0.5, 1.0, 0.0}, {0.5, 1.0, 0.0}, {1.0, 0.5, 0.0}},
-    // {{-1.0, 0.5, -1.0}, {-0.5, 1.0, -1.0}, {0.5, 1.0, -1.0}, {1.0, 0.5, -1.0}},
-    // {{-1.0, 0.0, -1.0}, {-0.5, 0.5, -1.0}, {0.5, 0.5, -1.0}, {1.0, 0.0, -1.0}}
     {{-1.0, 0.0, 1.0}, {-0.5, 0.0, 1.0}, {0.5, 0.0, 1.0}, {1.0, 0.0, 1.0}},
     {{-1.0, 0.0, 0.0}, {-0.5, 0.5, 0.0}, {0.5, 0.5, 0.0}, {1.0, 0.0, 0.0}},
     {{-1.0, 0.0, -1.0}, {-0.5, 0.0, -1.0}, {0.5, 0.0, -1.0}, {1.0, 0.0, -1.0}},
@@ -213,16 +210,9 @@ void lightsPos(void)
     glEnd();
 }
 
+// an asphalt floor with a grid to visualize the spot effect
 void canvasFloor(void)
 {
-    // Grid to show the spot effect?
-    // glBegin(GL_QUADS);
-    // glVertex3f(-80.0, 0.0, -80.0);
-    // glVertex3f(-80, 0.0, 80.0);
-    // glVertex3f(80.0, 0.0, 80.0);
-    // glVertex3f(80.0, 0.0, -80.0);
-    // glEnd();
-
     glEnable(GL_TEXTURE_2D);
     
     glBindTexture (GL_TEXTURE_2D,texName[2]);
@@ -230,25 +220,18 @@ void canvasFloor(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     
-    glPushMatrix();
-
-    glBegin(GL_QUADS);
-    
-    glTexCoord2f(0.0, 0.0);   glVertex3f(-80.0, 0.0, -80.0); //rt
-    glTexCoord2f(5.0, 0.0);   glVertex3f(-80, 0.0, 80.0); //lt
-    glTexCoord2f(5.0, 5.0);   glVertex3f(80.0, 0.0, 80.0);//lb
-    glTexCoord2f(0.0, 5.0);   glVertex3f(80.0, 0.0, -80.0);//rb
-
-    glEnd();
-
-    glPopMatrix();
+    for (float x = -80.0; x <= 80.0; x += 0.5) {
+        for (float z = -80.0; z <= 80.0; z += 0.5) {
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0, 0.0); glVertex3f(x, 0.0, z);
+            glTexCoord2f(1.0, 0.0); glVertex3f(x + 0.5, 0.0, z);
+            glTexCoord2f(1.0, 1.0); glVertex3f(x + 0.5, 0.0, z + 0.5);
+            glTexCoord2f(0.0, 1.0); glVertex3f(x, 0.0, z + 0.5);
+            glEnd();
+        }
+    }
 
     glDisable(GL_TEXTURE_2D);
-
-    
-
-
-
 }
 
 // define the orbit of the drone (an ellipse with origin 0.0)
@@ -396,7 +379,6 @@ void showCtrlPoints(char surface)
 
 void drawPropeller(char pos)
 {
-     
     glPushMatrix();
     if (pos == 'l')
     {
